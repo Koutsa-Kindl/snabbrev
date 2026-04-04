@@ -61,8 +61,14 @@
     .upsell h3{font-size:15px;font-weight:700;letter-spacing:-.2px}
     .upsell-price{font-size:13px;font-weight:600;color:var(--a);background:var(--al);padding:3px 10px;border-radius:10px}
     .upsell p{font-size:13px;color:var(--m);margin-bottom:14px;line-height:1.5}
+    .upsell-teaser-btn{width:100%;padding:11px;background:var(--a);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer}
+    .upsell-teaser-btn:hover{background:var(--ah)}
+    .upsell-form{display:none;margin-top:4px}
+    .upsell-form textarea{width:100%;padding:10px 12px;border:1px solid var(--b);border-radius:8px;font-size:13px;font-family:inherit;background:var(--bg);resize:vertical;min-height:100px;margin-bottom:10px}
+    .upsell-form textarea:focus{outline:none;border-color:var(--a)}
     .upsell-btn{width:100%;padding:11px;background:var(--a);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer}
     .upsell-btn:hover{background:var(--ah)}
+    .upsell-btn:disabled{background:#a0b8ad;cursor:not-allowed}
     .upsell-skip{display:block;text-align:center;font-size:12px;color:var(--m);margin-top:8px;cursor:pointer;border:none;background:none}
 
     /* REFERRAL SHARE */
@@ -130,11 +136,15 @@
     <!-- UPSELL: CV-granskning -->
     <div class="upsell" id="upsell">
       <div class="upsell-header">
-        <h3>Vill du ha ditt CV genomgånget också?</h3>
+        <h3>Vill du ha ditt CV granskat mot jobbet?</h3>
         <span class="upsell-price">29 kr</span>
       </div>
-      <p>AI:n analyserar ditt CV mot jobbannonsen du just sökte och ger specifik feedback: vad som saknas, vilka nyckelord som bör läggas till och hur du sticker ut.</p>
-      <button class="upsell-btn" onclick="buyUpsell()">Ja, granska mitt CV — 29 kr</button>
+      <p>Klistra in ditt CV så analyserar AI:n det mot jobbannonsen du just sökte — vad som saknas, vilka nyckelord du bör lägga till och hur du sticker ut.</p>
+      <button class="upsell-teaser-btn" onclick="showCvForm()">Ja, granska mitt CV — 29 kr</button>
+      <div class="upsell-form" id="upsell-form">
+        <textarea id="cv-text" placeholder="Klistra in ditt CV här — arbetslivserfarenhet, utbildning, kompetenser..."></textarea>
+        <button class="upsell-btn" id="upsell-pay-btn" onclick="buyUpsell()">Betala 29 kr och granska →</button>
+      </div>
       <button class="upsell-skip" onclick="document.getElementById('upsell').style.display='none'">Nej tack</button>
     </div>
 
@@ -239,7 +249,17 @@ function downloadLetter() {
   a.click();
 }
 
+function showCvForm() {
+  document.getElementById('upsell-form').style.display = 'block';
+  document.querySelector('.upsell-teaser-btn').style.display = 'none';
+  document.getElementById('cv-text').focus();
+}
+
 async function buyUpsell() {
+  const cvText = document.getElementById('cv-text').value.trim();
+  if (!cvText) { document.getElementById('cv-text').focus(); return; }
+  const btn = document.getElementById('upsell-pay-btn');
+  btn.disabled = true; btn.textContent = 'Skapar betalningssida…';
   if (window.va) window.va('event', { name: 'upsell_clicked' });
   try {
     const res = await fetch('/api/checkout', {
@@ -249,13 +269,17 @@ async function buyUpsell() {
         jobTitle: 'CV-granskning',
         company: currentCompany,
         jobDescription: `CV-granskning för ${currentJob} på ${currentCompany}`,
-        background: '',
+        background: cvText,
         isUpsell: true,
       })
     });
     const data = await res.json();
     if (data.url) window.location.href = data.url;
-  } catch(e) { alert('Något gick fel, försök igen.'); }
+    else throw new Error(data.error);
+  } catch(e) {
+    btn.disabled = false; btn.textContent = 'Betala 29 kr och granska →';
+    alert('Något gick fel, försök igen.');
+  }
 }
 
 function copyShareUrl() {

@@ -21,12 +21,13 @@ module.exports = async (req, res) => {
   if (!session_id) return res.status(400).json({ error: "session_id krävs" });
 
   // Free session (KINDL100) — no Stripe verification needed
-  let jobTitle, company, jobDescription, background, email, linkedinData, companyInfo;
+  let jobTitle, company, jobDescription, background, email, linkedinData, companyInfo, isUpsell;
 
   if (session_id.startsWith("free_")) {
     try {
       const decoded = JSON.parse(Buffer.from(session_id.slice(5), "base64url").toString());
       ({ jobTitle, company, jobDescription, background, email } = decoded);
+      isUpsell = false;
     } catch {
       return res.status(400).json({ error: "Ogiltig session." });
     }
@@ -42,6 +43,7 @@ module.exports = async (req, res) => {
       ({ linkedinData, background, email, companyInfo } = session.metadata);
       jobTitle = session.metadata.jobTitle;
       company = session.metadata.company;
+      isUpsell = session.metadata.isUpsell === "true";
 
       // Reassemble jobDescription — split across jobDesc1/2/3, old sessions used jobDescription
       jobDescription = session.metadata.jobDesc1 !== undefined
@@ -91,7 +93,31 @@ ${jobDescription}`,
       ? `\nFöretagsinformation (från deras webbplats):\n${companyInfo}`
       : "";
 
-    const prompt = `Du är en expert på att skriva personliga brev på svenska som faktiskt leder till intervjuer.
+
+    const prompt = isUpsell
+      ? `Du är en expert på rekrytering och CV-optimering. Analysera detta CV mot jobbannonsen och ge konkret, specifik feedback på svenska.
+
+TJÄNST: ${jobTitle}
+FÖRETAG: ${company}
+JOBBANNONS/KONTEXT: ${jobDescription}
+
+CV:
+${background || "Ej angivet"}
+
+INSTRUKTIONER:
+Ge feedback i dessa tre delar — var specifik, inte generell:
+
+1. STYRKOR (2-3 punkter)
+Vad i CV:t matchar jobbet bra? Lyft fram konkreta saker.
+
+2. SAKNAS / KAN STÄRKAS (3-4 punkter)
+Vad efterfrågas i jobbannonsen som inte syns i CV:t? Vilka nyckelord bör läggas till? Vad bör förtydligas?
+
+3. REKOMMENDATIONER (2-3 punkter)
+Konkreta åtgärder: exakt vad ska läggas till, ändras eller omformuleras för att CV:t ska passa bättre.
+
+Skriv BARA feedbacken, inga inledningar eller avslutningar.`
+      : `Du är en expert på att skriva personliga brev på svenska som faktiskt leder till intervjuer.
 
 TJÄNST: ${jobTitle}
 FÖRETAG: ${company}

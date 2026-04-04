@@ -159,6 +159,8 @@
 <script>
 const params = new URLSearchParams(window.location.search);
 const sessionId = params.get('session_id');
+const freeSession = params.get('free_session');
+const effectiveId = sessionId || (freeSession ? 'free_' + freeSession : null);
 let currentJob = '', currentCompany = '';
 
 // Animate loading steps — paced to match typical API duration (~15s)
@@ -173,8 +175,8 @@ stepDelays.forEach((delay, i) => {
 });
 // Keep last step active until result arrives (no auto-clearInterval)
 
-if (!sessionId) showError('Ingen session hittades. Gå tillbaka och försök igen.');
-else fetchLetter(sessionId);
+if (!effectiveId) showError('Ingen session hittades. Gå tillbaka och försök igen.');
+else fetchLetter(effectiveId);
 
 async function fetchLetter(id) {
   try {

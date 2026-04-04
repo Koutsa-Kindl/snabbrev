@@ -43,7 +43,10 @@ module.exports = async (req, res) => {
       metadata: {
         jobTitle: (jobTitle||"").slice(0,499),
         company: (company||"").slice(0,499),
-        jobDescription: (jobDescription||"").slice(0,499),
+        // Split jobDescription across three keys to overcome Stripe's 500-char limit per value (~1470 chars total)
+        jobDesc1: (jobDescription||"").slice(0, 490),
+        jobDesc2: (jobDescription||"").slice(490, 980),
+        jobDesc3: (jobDescription||"").slice(980, 1470),
         background: (background||"").slice(0,499),
         email: (email||"").slice(0,499),
         isUpsell: isUpsell ? "true" : "false",

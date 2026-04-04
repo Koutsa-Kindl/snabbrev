@@ -160,14 +160,17 @@ const params = new URLSearchParams(window.location.search);
 const sessionId = params.get('session_id');
 let currentJob = '', currentCompany = '';
 
-// Animate loading steps
+// Animate loading steps — paced to match typical API duration (~15s)
 const steps = ['ls1','ls2','ls3','ls4','ls5'];
 let si = 0;
-const iv = setInterval(() => {
-  if (si > 0) { document.getElementById(steps[si-1]).classList.remove('active'); document.getElementById(steps[si-1]).classList.add('done'); }
-  if (si < steps.length) { document.getElementById(steps[si]).classList.add('active'); si++; }
-  else clearInterval(iv);
-}, 1600);
+const stepDelays = [0, 2500, 5000, 8000, 12000];
+stepDelays.forEach((delay, i) => {
+  setTimeout(() => {
+    if (i > 0) { document.getElementById(steps[i-1]).classList.remove('active'); document.getElementById(steps[i-1]).classList.add('done'); }
+    document.getElementById(steps[i]).classList.add('active');
+  }, delay);
+});
+// Keep last step active until result arrives (no auto-clearInterval)
 
 if (!sessionId) showError('Ingen session hittades. Gå tillbaka och försök igen.');
 else fetchLetter(sessionId);

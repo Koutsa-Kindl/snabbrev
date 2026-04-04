@@ -1,6 +1,18 @@
 const Stripe = require("stripe");
 const Anthropic = require("@anthropic-ai/sdk");
 
+// Retry wrapper: retries up to `retries` times with linear backoff
+async function withRetry(fn, retries = 3, delayMs = 2000) {
+  for (let attempt = 0; attempt < retries; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      if (attempt === retries - 1) throw err;
+      await new Promise(r => setTimeout(r, delayMs * (attempt + 1)));
+    }
+  }
+}
+
 module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   if (req.method !== "GET") return res.status(405).json({ error: "Method not allowed" });
@@ -16,20 +28,17 @@ module.exports = async (req, res) => {
       return res.status(402).json({ error: "Betalning ej genomförd." });
     }
 
-    const {
-      jobTitle,
-      company,
-      jobDescription,
-      linkedinData,
-      background,
-      email,
-      companyInfo,
-    } = session.metadata;
+    const { jobTitle, company, linkedinData, background, email, companyInfo } = session.metadata;
+
+    // Reassemble jobDescription — new sessions split across jobDesc1/2/3, old sessions used jobDescription
+    const jobDescription = session.metadata.jobDesc1 !== undefined
+      ? (session.metadata.jobDesc1 || "") + (session.metadata.jobDesc2 || "") + (session.metadata.jobDesc3 || "")
+      : (session.metadata.jobDescription || "");
 
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
     // Step 1: Analyze the job listing for ATS keywords and tone
-    const analysisMsg = await anthropic.messages.create({
+    const analysisMsg = await withRetry(() => anthropic.messages.create({
       model: "claude-sonnet-4-20250514",
       max_tokens: 500,
       messages: [{
@@ -45,7 +54,7 @@ module.exports = async (req, res) => {
 Jobbannons:
 ${jobDescription}`,
       }],
-    });
+    }));
 
     let analysis = { keywords: [], tone: "professional", keyRequirements: [], companyVibe: "" };
     try {
@@ -91,11 +100,11 @@ INSTRUKTIONER:
 
 VIKTIGT: Brevet ska kännas genuint och mänskligt skrivet, inte som en mall. Varje mening ska ha ett syfte.`;
 
-    const letterMsg = await anthropic.messages.create({
+    const letterMsg = await withRetry(() => anthropic.messages.create({
       model: "claude-sonnet-4-20250514",
       max_tokens: 1024,
       messages: [{ role: "user", content: prompt }],
-    });
+    }));
 
     const letter = letterMsg.content[0].text;
 
@@ -117,6 +126,6 @@ VIKTIGT: Brevet ska kännas genuint och mänskligt skrivet, inte som en mall. Va
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: "Något gick fel vid generering av brevet. Kontakta hej@snabbrev.se med din order så löser vi det." });
   }
 };

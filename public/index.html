@@ -12,6 +12,7 @@
   <meta property="og:type" content="website"/>
   <meta property="og:locale" content="sv_SE"/>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Snabbrev","applicationCategory":"BusinessApplication","description":"AI-genererade personliga brev anpassade till jobbannonsen och din LinkedIn-profil.","url":"https://snabbrev.se","offers":{"@type":"Offer","price":"49","priceCurrency":"SEK"}}</script>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
   <script defer src="/_vercel/insights/script.js"></script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -243,7 +244,8 @@
 <footer>
   Snabbrev · hej@snabbrev.se<br>
   <a href="/villkor">Allmänna villkor</a> · <a href="/integritetspolicy">Integritetspolicy</a><br>
-  Momsbefriad verksamhet · Priser inkl. moms
+  <a href="/blogg/hur-skriver-man-personligt-brev">Hur skriver man ett personligt brev?</a> · <a href="/blogg/ats-vad-ar-det">Vad är ATS?</a><br>
+  Momsbefriad verksamhet · Org-nr: tilldelas av Skatteverket
 </footer>
 
 <script>
@@ -281,7 +283,7 @@ async function fetchJob(){
   try{
     const res=await fetch('/api/fetch-job',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url})});
     const data=await res.json();
-    if(data.text){ta.value=data.text.slice(0,480);ta.dispatchEvent(new Event('input'));setStatus('job-status','✓ Annonstext hämtad','ok');}
+    if(data.text){ta.value=data.text.slice(0,1400);ta.dispatchEvent(new Event('input'));setStatus('job-status','✓ Annonstext hämtad','ok');}
     else throw new Error(data.error||'Fel');
   }catch(err){setStatus('job-status',err.message,'err');}
   finally{btn.disabled=false;btn.textContent='Hämta';}

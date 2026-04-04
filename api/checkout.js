@@ -9,13 +9,21 @@ module.exports = async (req, res) => {
 
   try {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-    const { jobTitle, company, jobDescription, background, email, discountAmount, isUpsell } = req.body;
+    const { jobTitle, company, jobDescription, background, email, discountAmount, discountCode, isUpsell } = req.body;
 
     if (!jobTitle || !company || !jobDescription) {
       return res.status(400).json({ error: "Tjänst, företag och jobbeskrivning krävs." });
     }
 
     const origin = req.headers.origin || `https://${req.headers.host}`;
+
+    // 100% discount — bypass Stripe entirely
+    if ((discountCode || "").toUpperCase() === "KINDL100") {
+      const payload = Buffer.from(JSON.stringify({
+        jobTitle, company, jobDescription, background, email,
+      })).toString("base64url");
+      return res.json({ url: `${origin}/success?free_session=${payload}` });
+    }
 
     // Pricing logic
     let basePrice = isUpsell ? 2900 : 4900; // öre

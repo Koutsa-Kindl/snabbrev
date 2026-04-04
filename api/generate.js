@@ -20,20 +20,40 @@ module.exports = async (req, res) => {
   const { session_id } = req.query;
   if (!session_id) return res.status(400).json({ error: "session_id krävs" });
 
-  try {
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-    const session = await stripe.checkout.sessions.retrieve(session_id);
+  // Free session (KINDL100) — no Stripe verification needed
+  let jobTitle, company, jobDescription, background, email, linkedinData, companyInfo;
 
-    if (session.payment_status !== "paid") {
-      return res.status(402).json({ error: "Betalning ej genomförd." });
+  if (session_id.startsWith("free_")) {
+    try {
+      const decoded = JSON.parse(Buffer.from(session_id.slice(5), "base64url").toString());
+      ({ jobTitle, company, jobDescription, background, email } = decoded);
+    } catch {
+      return res.status(400).json({ error: "Ogiltig session." });
     }
+  } else {
+    try {
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+      const session = await stripe.checkout.sessions.retrieve(session_id);
 
-    const { jobTitle, company, linkedinData, background, email, companyInfo } = session.metadata;
+      if (session.payment_status !== "paid") {
+        return res.status(402).json({ error: "Betalning ej genomförd." });
+      }
 
-    // Reassemble jobDescription — new sessions split across jobDesc1/2/3, old sessions used jobDescription
-    const jobDescription = session.metadata.jobDesc1 !== undefined
-      ? (session.metadata.jobDesc1 || "") + (session.metadata.jobDesc2 || "") + (session.metadata.jobDesc3 || "")
-      : (session.metadata.jobDescription || "");
+      ({ linkedinData, background, email, companyInfo } = session.metadata);
+      jobTitle = session.metadata.jobTitle;
+      company = session.metadata.company;
+
+      // Reassemble jobDescription — split across jobDesc1/2/3, old sessions used jobDescription
+      jobDescription = session.metadata.jobDesc1 !== undefined
+        ? (session.metadata.jobDesc1 || "") + (session.metadata.jobDesc2 || "") + (session.metadata.jobDesc3 || "")
+        : (session.metadata.jobDescription || "");
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Kunde inte verifiera betalning." });
+    }
+  }
+
+  try {
 
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 

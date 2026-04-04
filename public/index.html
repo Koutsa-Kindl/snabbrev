@@ -316,7 +316,7 @@
 
 <script>
 const LS_KEY="snabbrev_profile";
-const VALID_CODES={"VÄNRABATT10":10,"SHARE10":10,"SNABBSTART":15};
+const VALID_CODES={"VÄNRABATT10":10,"SHARE10":10,"SNABBSTART":15,"KINDL100":49};
 let appliedDiscount=0;
 
 window.addEventListener('DOMContentLoaded',()=>{
@@ -365,7 +365,7 @@ document.getElementById('form').addEventListener('submit',async(e)=>{
   const errEl=document.getElementById('error-msg');
   errEl.style.display='none';btn.disabled=true;btn.textContent='Skapar betalningssida…';
   saveProfile();
-  const body={jobTitle:document.getElementById('jobTitle').value.trim(),company:document.getElementById('company').value.trim(),jobDescription:document.getElementById('jobDescription').value.trim(),background:document.getElementById('background').value.trim(),email:document.getElementById('email').value.trim(),discountAmount:appliedDiscount};
+  const body={jobTitle:document.getElementById('jobTitle').value.trim(),company:document.getElementById('company').value.trim(),jobDescription:document.getElementById('jobDescription').value.trim(),background:document.getElementById('background').value.trim(),email:document.getElementById('email').value.trim(),discountAmount:appliedDiscount,discountCode:document.getElementById('discount-code').value.trim().toUpperCase()};
   try{
     const res=await fetch('/api/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     const data=await res.json();

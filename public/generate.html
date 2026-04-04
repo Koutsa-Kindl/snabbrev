@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generate Proposal — ScopeAI</title>
+  <meta name="robots" content="noindex" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script defer src="/_vercel/insights/script.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --indigo: #4F46E5; --indigo-dark: #4338CA; --indigo-light: #EEF2FF;
+      --slate-900: #0F172A; --slate-700: #334155; --slate-500: #64748B;
+      --slate-300: #CBD5E1; --slate-200: #E2E8F0; --slate-100: #F1F5F9;
+      --slate-50: #F8FAFC; --white: #FFFFFF; --green: #10B981; --red: #EF4444;
+    }
+    body { font-family: 'Inter', sans-serif; color: var(--slate-900); background: var(--slate-50); line-height: 1.6; min-height: 100vh; }
+    nav { background: white; border-bottom: 1px solid var(--slate-200); }
+    .nav-inner { max-width: 960px; margin: 0 auto; padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 17px; color: var(--slate-900); text-decoration: none; }
+    .logo-icon { width: 26px; height: 26px; background: var(--indigo); border-radius: 5px; display: flex; align-items: center; justify-content: center; color: white; font-size: 13px; font-weight: 800; }
+    .back-link { font-size: 13px; color: var(--slate-500); text-decoration: none; }
+    .back-link:hover { color: var(--indigo); }
+
+    .page { max-width: 700px; margin: 0 auto; padding: 40px 24px 80px; }
+    .page-title { font-size: 26px; font-weight: 800; color: var(--slate-900); margin-bottom: 6px; letter-spacing: -0.02em; }
+    .page-sub { font-size: 15px; color: var(--slate-500); margin-bottom: 32px; }
+
+    .form-card { background: white; border: 1.5px solid var(--slate-200); border-radius: 16px; padding: 32px; }
+    .field { margin-bottom: 22px; }
+    .field label { display: block; font-size: 13px; font-weight: 600; color: var(--slate-700); margin-bottom: 7px; }
+    .field label .optional { font-weight: 400; color: var(--slate-400); margin-left: 4px; }
+    .field textarea, .field input, .field select {
+      width: 100%; font-family: inherit; font-size: 15px; color: var(--slate-900);
+      background: var(--slate-50); border: 1.5px solid var(--slate-200); border-radius: 8px;
+      padding: 11px 14px; outline: none; transition: border-color 0.15s; resize: vertical;
+    }
+    .field textarea:focus, .field input:focus, .field select:focus { border-color: var(--indigo); background: white; }
+    .field textarea { min-height: 120px; }
+    .char-counter { font-size: 12px; color: var(--slate-400); text-align: right; margin-top: 4px; }
+    .char-counter.warn { color: var(--red); }
+
+    .tone-group { display: flex; gap: 10px; flex-wrap: wrap; }
+    .tone-option { display: none; }
+    .tone-label { display: flex; align-items: center; gap: 7px; padding: 9px 16px; border: 1.5px solid var(--slate-200); border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; color: var(--slate-700); transition: all 0.15s; user-select: none; }
+    .tone-label:hover { border-color: var(--indigo); color: var(--indigo); }
+    .tone-option:checked + .tone-label { border-color: var(--indigo); background: var(--indigo-light); color: var(--indigo); font-weight: 600; }
+
+    .divider { border: none; border-top: 1px solid var(--slate-200); margin: 24px 0; }
+
+    .free-notice { background: #D1FAE5; border: 1.5px solid #6EE7B7; border-radius: 10px; padding: 14px 18px; font-size: 14px; color: #065F46; display: flex; align-items: flex-start; gap: 10px; margin-bottom: 20px; }
+    .free-notice svg { flex-shrink: 0; margin-top: 2px; }
+
+    .btn-row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-free { flex: 1; min-width: 200px; padding: 14px 20px; border-radius: 10px; border: 1.5px solid var(--slate-200); background: white; font-family: inherit; font-size: 15px; font-weight: 600; color: var(--slate-700); cursor: pointer; transition: all 0.15s; }
+    .btn-free:hover { border-color: var(--indigo); color: var(--indigo); }
+    .btn-paid { flex: 2; min-width: 220px; padding: 14px 24px; border-radius: 10px; border: none; background: var(--indigo); font-family: inherit; font-size: 15px; font-weight: 700; color: white; cursor: pointer; transition: background 0.15s; }
+    .btn-paid:hover { background: var(--indigo-dark); }
+    .btn-paid:disabled, .btn-free:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .trust-row { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 16px; font-size: 12px; color: var(--slate-400); }
+    .trust-row span { display: flex; align-items: center; gap: 5px; }
+
+    .error-box { background: #FEF2F2; border: 1.5px solid #FCA5A5; border-radius: 10px; padding: 14px 18px; font-size: 14px; color: #991B1B; margin-top: 16px; display: none; }
+    .error-box a { color: #991B1B; font-weight: 600; }
+
+    /* OUTPUT AREA */
+    .output-area { display: none; margin-top: 32px; }
+    .output-area.visible { display: block; }
+    .output-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+    .output-title { font-size: 18px; font-weight: 700; color: var(--slate-900); }
+    .output-actions { display: flex; gap: 8px; }
+    .btn-action { padding: 8px 16px; border-radius: 8px; border: 1.5px solid var(--slate-200); background: white; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--slate-700); cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
+    .btn-action:hover { border-color: var(--indigo); color: var(--indigo); }
+    .btn-action.copied { border-color: var(--green); color: var(--green); background: #D1FAE5; }
+    .proposal-output { background: white; border: 1.5px solid var(--slate-200); border-radius: 12px; padding: 28px; font-size: 15px; line-height: 1.8; color: var(--slate-700); }
+    .proposal-output h2 { font-size: 16px; font-weight: 700; color: var(--slate-900); margin: 20px 0 8px; padding-bottom: 6px; border-bottom: 1px solid var(--slate-100); }
+    .proposal-output h2:first-child { margin-top: 0; }
+    .proposal-output ul, .proposal-output ol { padding-left: 20px; margin: 6px 0; }
+    .proposal-output li { margin-bottom: 5px; }
+    .proposal-output strong { color: var(--slate-900); }
+    .proposal-output hr { border: none; border-top: 1px solid var(--slate-200); margin: 16px 0; }
+    .proposal-output p { margin: 8px 0; }
+    .watermark-notice { margin-top: 12px; padding: 10px 14px; background: var(--slate-50); border-radius: 8px; font-size: 12px; color: var(--slate-500); text-align: center; }
+    .watermark-notice a { color: var(--indigo); font-weight: 600; text-decoration: none; }
+
+    /* LOADING */
+    .loading { display: none; flex-direction: column; align-items: center; padding: 48px 24px; gap: 16px; }
+    .loading.visible { display: flex; }
+    .spinner { width: 40px; height: 40px; border: 3px solid var(--slate-200); border-top-color: var(--indigo); border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-steps { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 360px; }
+    .loading-step { font-size: 13px; color: var(--slate-400); display: flex; align-items: center; gap: 8px; transition: color 0.3s; }
+    .loading-step.active { color: var(--slate-700); font-weight: 500; }
+    .loading-step.done { color: var(--green); }
+    .step-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--slate-200); flex-shrink: 0; transition: background 0.3s; }
+    .loading-step.active .step-dot { background: var(--indigo); }
+    .loading-step.done .step-dot { background: var(--green); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo"><div class="logo-icon">S</div>ScopeAI</a>
+    <a href="/" class="back-link">← Back to home</a>
+  </div>
+</nav>
+
+<div class="page">
+  <h1 class="page-title">Generate Your Proposal</h1>
+  <p class="page-sub">Fill in the details below. The more specific you are, the better the output.</p>
+
+  <div class="form-card">
+    <form id="proposalForm" onsubmit="return false">
+
+      <div class="field">
+        <label for="projectDescription">Project description <span style="color:var(--red)">*</span></label>
+        <textarea id="projectDescription" name="projectDescription" maxlength="1470" placeholder="Example: Client needs a brand identity package for their new fintech startup — logo, color palette, typography, and brand guidelines. They want a clean, trustworthy look targeting B2B customers. Timeline is 3 weeks and budget is around $4,000." required></textarea>
+        <div class="char-counter" id="charCount">0 / 1470</div>
+      </div>
+
+      <div class="field">
+        <label for="serviceType">Your service type <span style="color:var(--red)">*</span></label>
+        <select id="serviceType" name="serviceType" required>
+          <option value="">Select service type…</option>
+          <option>Web Design &amp; Development</option>
+          <option>Brand Identity &amp; Logo Design</option>
+          <option>Copywriting &amp; Content</option>
+          <option>Mobile App Development</option>
+          <option>Marketing &amp; SEO</option>
+          <option>Video Production &amp; Editing</option>
+          <option>Photography</option>
+          <option>UX/UI Design</option>
+          <option>Business Consulting</option>
+          <option>Software Development</option>
+          <option>Data &amp; Analytics</option>
+          <option>Architecture &amp; Interior Design</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="specialty">Your specialty / tech stack <span class="optional">(optional)</span></label>
+        <input type="text" id="specialty" name="specialty" maxlength="200" placeholder="e.g. Shopify, React, Figma, WordPress, Adobe CC…" />
+      </div>
+
+      <div class="field">
+        <label for="budget">Budget or rate <span class="optional">(optional)</span></label>
+        <input type="text" id="budget" name="budget" maxlength="100" placeholder="e.g. $5,000 fixed, $120/hr, ~€8,000" />
+      </div>
+
+      <div class="field">
+        <label>Proposal tone</label>
+        <div class="tone-group">
+          <input type="radio" name="tone" id="tone-professional" value="professional" class="tone-option" checked />
+          <label for="tone-professional" class="tone-label">💼 Professional</label>
+          <input type="radio" name="tone" id="tone-friendly" value="friendly" class="tone-option" />
+          <label for="tone-friendly" class="tone-label">😊 Friendly</label>
+          <input type="radio" name="tone" id="tone-technical" value="technical" class="tone-option" />
+          <label for="tone-technical" class="tone-label">⚙️ Technical</label>
+        </div>
+      </div>
+
+      <hr class="divider" />
+
+      <div class="field">
+        <label for="clientName">Client / company name <span class="optional">(optional)</span></label>
+        <input type="text" id="clientName" name="clientName" maxlength="100" placeholder="e.g. Acme Corp" />
+      </div>
+
+      <div class="field">
+        <label for="clientIndustry">Client industry <span class="optional">(optional)</span></label>
+        <input type="text" id="clientIndustry" name="clientIndustry" maxlength="100" placeholder="e.g. E-commerce, SaaS, Healthcare, Real estate…" />
+      </div>
+
+      <div class="field">
+        <label for="yourName">Your name or agency <span class="optional">(optional)</span></label>
+        <input type="text" id="yourName" name="yourName" maxlength="100" placeholder="e.g. Jane Smith or Pixel Studio" />
+      </div>
+
+      <div class="field">
+        <label for="email">Email <span class="optional">(for receipt, optional)</span></label>
+        <input type="email" id="email" name="email" maxlength="200" placeholder="you@example.com" />
+      </div>
+
+      <hr class="divider" />
+
+      <div class="free-notice" id="freeNotice">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7.5" stroke="#10B981" stroke-width="1.5"/><path d="M5.5 8l2 2 3-3" stroke="#10B981" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Your <strong>first proposal is free</strong> — no payment required. Try it out!</span>
+      </div>
+
+      <div class="btn-row">
+        <button type="button" class="btn-free" id="btnFree" onclick="generateFree()">Try for Free</button>
+        <button type="button" class="btn-paid" id="btnPaid" onclick="generatePaid()">Generate — $5 →</button>
+      </div>
+
+      <div class="trust-row">
+        <span>🔒 Secure checkout via Stripe</span>
+        <span>⚡ 30-second generation</span>
+        <span>✓ No account needed</span>
+      </div>
+
+      <div class="error-box" id="errorBox"></div>
+    </form>
+
+    <!-- Loading state -->
+    <div class="loading" id="loadingArea">
+      <div class="spinner"></div>
+      <div class="loading-steps">
+        <div class="loading-step active" id="step1"><div class="step-dot"></div>Analyzing your project brief…</div>
+        <div class="loading-step" id="step2"><div class="step-dot"></div>Writing scope of work…</div>
+        <div class="loading-step" id="step3"><div class="step-dot"></div>Building pricing tiers…</div>
+        <div class="loading-step" id="step4"><div class="step-dot"></div>Finalizing your proposal…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Output area (for free tier — shown inline) -->
+  <div class="output-area" id="outputArea">
+    <div class="output-header">
+      <div class="output-title">Your Proposal</div>
+      <div class="output-actions">
+        <button class="btn-action" id="btnCopy" onclick="copyProposal()">📋 Copy</button>
+        <button class="btn-action" onclick="downloadPdf()">⬇ Download PDF</button>
+      </div>
+    </div>
+    <div class="proposal-output" id="proposalOutput"></div>
+    <div class="watermark-notice" id="watermarkNotice" style="display:none">
+      Want a clean copy without the watermark? <a href="/generate">Generate for $5 →</a>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+  const desc = document.getElementById('projectDescription');
+  const counter = document.getElementById('charCount');
+  desc.addEventListener('input', () => {
+    const len = desc.value.length;
+    counter.textContent = len + ' / 1470';
+    counter.classList.toggle('warn', len > 1300);
+  });
+
+  // Check if free tier already used
+  const freeUsed = localStorage.getItem('scopeai_free_used') === 'true';
+  if (freeUsed) {
+    document.getElementById('freeNotice').style.display = 'none';
+    document.getElementById('btnFree').style.display = 'none';
+  }
+
+  // Check for plan=pro URL param
+  const urlPlan = new URLSearchParams(location.search).get('plan');
+  if (urlPlan === 'pro') {
+    document.getElementById('btnPaid').textContent = 'Subscribe — $29/month →';
+    document.getElementById('btnPaid').dataset.plan = 'pro';
+  }
+
+  function getFormData() {
+    return {
+      projectDescription: document.getElementById('projectDescription').value.trim(),
+      serviceType: document.getElementById('serviceType').value,
+      specialty: document.getElementById('specialty').value.trim(),
+      budget: document.getElementById('budget').value.trim(),
+      tone: document.querySelector('input[name="tone"]:checked').value,
+      clientName: document.getElementById('clientName').value.trim(),
+      clientIndustry: document.getElementById('clientIndustry').value.trim(),
+      yourName: document.getElementById('yourName').value.trim(),
+      email: document.getElementById('email').value.trim(),
+    };
+  }
+
+  function validate() {
+    const data = getFormData();
+    if (data.projectDescription.length < 20) {
+      showError('Please describe your project in at least 20 characters.');
+      return false;
+    }
+    if (!data.serviceType) {
+      showError('Please select your service type.');
+      return false;
+    }
+    return true;
+  }
+
+  function showError(msg) {
+    const box = document.getElementById('errorBox');
+    box.innerHTML = msg;
+    box.style.display = 'block';
+  }
+
+  function setLoading(on) {
+    const form = document.getElementById('proposalForm');
+    const loadArea = document.getElementById('loadingArea');
+    document.getElementById('btnFree').disabled = on;
+    document.getElementById('btnPaid').disabled = on;
+    if (on) {
+      form.style.display = 'none';
+      loadArea.classList.add('visible');
+      animateSteps();
+    } else {
+      form.style.display = 'block';
+      loadArea.classList.remove('visible');
+    }
+  }
+
+  function animateSteps() {
+    const steps = ['step1','step2','step3','step4'];
+    const delays = [0, 6000, 12000, 18000];
+    steps.forEach((id, i) => {
+      setTimeout(() => {
+        if (i > 0) {
+          document.getElementById(steps[i-1]).classList.remove('active');
+          document.getElementById(steps[i-1]).classList.add('done');
+        }
+        document.getElementById(id).classList.add('active');
+      }, delays[i]);
+    });
+  }
+
+  async function generateFree() {
+    if (!validate()) return;
+    document.getElementById('errorBox').style.display = 'none';
+    setLoading(true);
+
+    const data = getFormData();
+    try {
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'free', ...data }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || 'Generation failed.');
+
+      localStorage.setItem('scopeai_free_used', 'true');
+      setLoading(false);
+      renderProposal(json.proposal, true);
+
+      if (window.va) window.va('event', { name: 'proposal_generated', data: { type: 'free' } });
+    } catch (err) {
+      setLoading(false);
+      showError(err.message + ' If the problem persists, email <a href="mailto:support@scopeai.io">support@scopeai.io</a>.');
+    }
+  }
+
+  async function generatePaid() {
+    if (!validate()) return;
+    document.getElementById('errorBox').style.display = 'none';
+
+    const data = getFormData();
+    const plan = document.getElementById('btnPaid').dataset.plan || 'single';
+
+    // Store data in localStorage so success page can retrieve it
+    const ref = 'scopeai_' + Date.now();
+    localStorage.setItem(ref, JSON.stringify(data));
+    localStorage.setItem('scopeai_last_ref', ref);
+
+    try {
+      const btnPaid = document.getElementById('btnPaid');
+      btnPaid.disabled = true;
+      btnPaid.textContent = 'Redirecting to checkout…';
+
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...data, plan }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || 'Checkout failed.');
+      window.location.href = json.url;
+    } catch (err) {
+      document.getElementById('btnPaid').disabled = false;
+      document.getElementById('btnPaid').textContent = 'Generate — $5 →';
+      showError('Could not start checkout: ' + err.message);
+    }
+  }
+
+  function renderProposal(markdown, watermark) {
+    const html = markdownToHtml(markdown);
+    document.getElementById('proposalOutput').innerHTML = html;
+    if (watermark) {
+      document.getElementById('watermarkNotice').style.display = 'block';
+    }
+    document.getElementById('outputArea').classList.add('visible');
+    document.getElementById('outputArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function markdownToHtml(md) {
+    return md
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+      .replace(/^### (.+)$/gm, '<h3 style="font-size:15px;font-weight:700;margin:14px 0 6px">$1</h3>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
+      .replace(/^[-•] (.+)$/gm, '<li>$1</li>')
+      .replace(/^---$/gm, '<hr />')
+      .replace(/(<li>[\s\S]+?<\/li>(?:\n<li>[\s\S]+?<\/li>)*)/g, (m) => {
+        const isOrdered = md.match(/^\d+\. /m);
+        return isOrdered ? '<ol>' + m + '</ol>' : '<ul>' + m + '</ul>';
+      })
+      .replace(/\n\n/g, '</p><p>')
+      .replace(/^(?!<[houlp])/gm, '')
+      .replace(/<p><\/p>/g, '');
+  }
+
+  async function copyProposal() {
+    const text = document.getElementById('proposalOutput').innerText;
+    await navigator.clipboard.writeText(text);
+    const btn = document.getElementById('btnCopy');
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '📋 Copy'; btn.classList.remove('copied'); }, 2000);
+    if (window.va) window.va('event', { name: 'proposal_copied' });
+  }
+
+  function downloadPdf() {
+    const el = document.getElementById('proposalOutput');
+    const opt = {
+      margin: [15, 15, 15, 15],
+      filename: 'proposal-scopeai.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    };
+    html2pdf().set(opt).from(el).save();
+    if (window.va) window.va('event', { name: 'pdf_downloaded' });
+  }
+</script>
+</body>
+</html>

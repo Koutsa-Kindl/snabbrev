@@ -1,21 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://snabbrev.se/</loc>
-    <lastmod>2026-04-04</lastmod>
+    <loc>https://scopeai.io/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://snabbrev.se/blogg/hur-skriver-man-personligt-brev</loc>
-    <lastmod>2026-04-04</lastmod>
+    <loc>https://scopeai.io/blog/freelance-proposal-guide</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://snabbrev.se/blogg/ats-vad-ar-det</loc>
-    <lastmod>2026-04-04</lastmod>
+    <loc>https://scopeai.io/blog/scope-of-work-template</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://scopeai.io/privacy</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://scopeai.io/terms</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
   </url>
 </urlset>

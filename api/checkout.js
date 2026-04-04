@@ -9,62 +9,88 @@ module.exports = async (req, res) => {
 
   try {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-    const { jobTitle, company, jobDescription, background, email, discountAmount, discountCode, isUpsell } = req.body;
+    const {
+      projectDescription,
+      serviceType,
+      specialty,
+      budget,
+      tone,
+      clientName,
+      clientIndustry,
+      yourName,
+      email,
+      plan, // "single" ($5) or "pro" ($29/mo)
+    } = req.body;
 
-    if (!jobTitle || !company || !jobDescription) {
-      return res.status(400).json({ error: "Tjänst, företag och jobbeskrivning krävs." });
+    if (!projectDescription || projectDescription.trim().length < 20) {
+      return res.status(400).json({ error: "Please describe your project in at least 20 characters." });
     }
 
     const origin = req.headers.origin || `https://${req.headers.host}`;
+    const isPro = plan === "pro";
 
-    // 100% discount — bypass Stripe entirely
-    if ((discountCode || "").toUpperCase() === "KINDL100") {
-      const payload = Buffer.from(JSON.stringify({
-        jobTitle, company, jobDescription, background, email,
-      })).toString("base64url");
-      return res.json({ url: `${origin}/success?free_session=${payload}` });
-    }
-
-    // Pricing logic
-    let basePrice = isUpsell ? 2900 : 4900; // öre
-    const discount = Math.min(parseInt(discountAmount)||0, 20) * 100;
-    const finalPrice = Math.max(basePrice - discount, 1900); // min 19kr
-
-    const productName = isUpsell
-      ? `CV-granskning – ${jobTitle} på ${company}`
-      : `Personligt brev – ${jobTitle} på ${company}`;
-
-    const session = await stripe.checkout.sessions.create({
+    const desc = projectDescription || "";
+    const sessionConfig = {
       payment_method_types: ["card"],
       customer_email: email || undefined,
-      line_items: [{
-        price_data: {
-          currency: "sek",
-          product_data: { name: productName },
-          unit_amount: finalPrice,
-        },
-        quantity: 1,
-      }],
-      mode: "payment",
       success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/`,
+      cancel_url: `${origin}/generate`,
       metadata: {
-        jobTitle: (jobTitle||"").slice(0,499),
-        company: (company||"").slice(0,499),
-        // Split jobDescription across three keys to overcome Stripe's 500-char limit per value (~1470 chars total)
-        jobDesc1: (jobDescription||"").slice(0, 490),
-        jobDesc2: (jobDescription||"").slice(490, 980),
-        jobDesc3: (jobDescription||"").slice(980, 1470),
-        background: (background||"").slice(0,499),
-        email: (email||"").slice(0,499),
-        isUpsell: isUpsell ? "true" : "false",
+        serviceType: (serviceType || "").slice(0, 499),
+        specialty: (specialty || "").slice(0, 499),
+        budget: (budget || "").slice(0, 499),
+        tone: (tone || "professional").slice(0, 499),
+        clientName: (clientName || "").slice(0, 499),
+        clientIndustry: (clientIndustry || "").slice(0, 499),
+        yourName: (yourName || "").slice(0, 499),
+        email: (email || "").slice(0, 499),
+        // Split project description across 3 keys (500 chars each = ~1470 chars total)
+        projDesc1: desc.slice(0, 490),
+        projDesc2: desc.slice(490, 980),
+        projDesc3: desc.slice(980, 1470),
+        plan: isPro ? "pro" : "single",
       },
-      locale: "sv",
-    });
+    };
 
+    if (isPro) {
+      // Subscription: $29/month
+      sessionConfig.mode = "subscription";
+      sessionConfig.line_items = [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: "ScopeAI Pro",
+              description: "Unlimited AI proposals, PDF export, tone options",
+            },
+            unit_amount: 2900,
+            recurring: { interval: "month" },
+          },
+          quantity: 1,
+        },
+      ];
+    } else {
+      // Pay-per-use: $5
+      sessionConfig.mode = "payment";
+      sessionConfig.line_items = [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: "ScopeAI Proposal",
+              description: "Professional AI-generated client proposal (PDF ready)",
+            },
+            unit_amount: 500,
+          },
+          quantity: 1,
+        },
+      ];
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionConfig);
     res.json({ url: session.url });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
+    console.error("Checkout error:", err);
+    res.status(500).json({ error: "Could not create checkout session: " + err.message });
   }
 };

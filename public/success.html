@@ -1,296 +1,292 @@
 <!DOCTYPE html>
-<html lang="sv">
+<html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Ditt personliga brev – Snabbrev</title>
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
-  <!-- Vercel Analytics -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Proposal — ScopeAI</title>
+  <meta name="robots" content="noindex" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script defer src="/_vercel/insights/script.js"></script>
   <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--bg:#f9f8f6;--s:#fff;--b:#e5e3de;--t:#1a1a18;--m:#6b6963;--a:#2d6a4f;--ah:#245a42;--al:#e8f5ee;--ab:#b7dfc9}
-    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--t);min-height:100vh}
-    nav{max-width:680px;margin:0 auto;padding:20px 24px;display:flex;align-items:center;justify-content:space-between}
-    .logo{font-size:18px;font-weight:700;color:var(--t);text-decoration:none}.logo span{color:var(--a)}
-    main{max-width:680px;margin:0 auto;padding:16px 24px 60px}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --indigo: #4F46E5; --indigo-dark: #4338CA; --indigo-light: #EEF2FF;
+      --slate-900: #0F172A; --slate-700: #334155; --slate-500: #64748B;
+      --slate-200: #E2E8F0; --slate-100: #F1F5F9; --slate-50: #F8FAFC;
+      --white: #FFFFFF; --green: #10B981; --red: #EF4444;
+    }
+    body { font-family: 'Inter', sans-serif; color: var(--slate-900); background: var(--slate-50); min-height: 100vh; }
+    nav { background: white; border-bottom: 1px solid var(--slate-200); }
+    .nav-inner { max-width: 960px; margin: 0 auto; padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 17px; color: var(--slate-900); text-decoration: none; }
+    .logo-icon { width: 26px; height: 26px; background: var(--indigo); border-radius: 5px; display: flex; align-items: center; justify-content: center; color: white; font-size: 13px; font-weight: 800; }
 
-    .loading{text-align:center;padding:70px 0}
-    .spinner{width:36px;height:36px;border:3px solid var(--b);border-top-color:var(--a);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .loading p{color:var(--m);font-size:15px;margin-bottom:20px}
-    .loading-steps{display:flex;flex-direction:column;gap:6px;max-width:260px;margin:0 auto}
-    .lstep{font-size:12px;color:var(--m);display:flex;align-items:center;gap:8px;opacity:.35;transition:opacity .5s}
-    .lstep.active{opacity:1;color:var(--a);font-weight:500}
-    .lstep.done{opacity:.6}
-    .lstep::before{content:"○";flex-shrink:0}
-    .lstep.active::before{content:"●"}
-    .lstep.done::before{content:"✓";color:var(--a)}
+    .page { max-width: 740px; margin: 0 auto; padding: 40px 24px 80px; }
 
-    .error-box{background:#fef2f2;border:1px solid #fca5a5;color:#b91c1c;border-radius:10px;padding:20px;text-align:center;display:none}
+    /* LOADING */
+    .loading-card { background: white; border: 1.5px solid var(--slate-200); border-radius: 16px; padding: 56px 32px; text-align: center; }
+    .spinner { width: 44px; height: 44px; border: 3px solid var(--slate-200); border-top-color: var(--indigo); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 20px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-card h2 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .loading-card p { color: var(--slate-500); font-size: 14px; }
+    .loading-steps { display: flex; flex-direction: column; gap: 10px; max-width: 340px; margin: 24px auto 0; text-align: left; }
+    .loading-step { font-size: 13px; color: var(--slate-400); display: flex; align-items: center; gap: 10px; }
+    .loading-step.active { color: var(--slate-700); font-weight: 500; }
+    .loading-step.done { color: var(--green); }
+    .step-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--slate-200); flex-shrink: 0; }
+    .loading-step.active .step-dot { background: var(--indigo); }
+    .loading-step.done .step-dot { background: var(--green); }
 
-    .success-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px}
-    .check-circle{width:36px;height:36px;background:var(--al);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
-    .check-circle svg{color:var(--a)}
-    .success-header h1{font-size:20px;font-weight:700;letter-spacing:-.3px;margin-bottom:3px}
-    .success-header p{font-size:13px;color:var(--m)}
+    /* ERROR */
+    .error-card { background: white; border: 1.5px solid #FCA5A5; border-radius: 16px; padding: 32px; display: none; }
+    .error-card h2 { font-size: 20px; font-weight: 700; color: #991B1B; margin-bottom: 10px; }
+    .error-card p { color: var(--slate-700); font-size: 15px; line-height: 1.6; margin-bottom: 16px; }
+    .error-card a { color: var(--indigo); font-weight: 600; }
 
-    /* ATS */
-    .ats-strip{background:var(--al);border:1px solid var(--ab);border-radius:10px;padding:12px 16px;margin-bottom:14px;display:none}
-    .ats-label{font-size:11px;font-weight:600;color:var(--a);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
-    .ats-tags{display:flex;flex-wrap:wrap;gap:6px}
-    .ats-tag{font-size:12px;background:#fff;border:1px solid var(--ab);color:var(--a);padding:2px 10px;border-radius:10px}
-
-    /* EMAIL CONFIRM */
-    .email-confirm{background:var(--bg);border:1px solid var(--b);border-radius:8px;padding:9px 14px;margin-bottom:14px;font-size:13px;color:var(--m);display:none}
-
-    /* LETTER */
-    .letter-card{background:var(--s);border:1px solid var(--b);border-radius:14px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.05);margin-bottom:16px}
-    .letter-toolbar{display:flex;align-items:center;justify-content:space-between;padding:11px 18px;border-bottom:1px solid var(--b);background:var(--bg);gap:10px;flex-wrap:wrap}
-    .letter-meta{font-size:12px;color:var(--m)}.letter-meta strong{color:var(--t)}
-    .toolbar-btns{display:flex;gap:8px}
-    .copy-btn{padding:6px 14px;background:var(--a);color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer}
-    .copy-btn:hover{background:var(--ah)}.copy-btn.copied{background:#16a34a}
-    .dl-btn{padding:6px 14px;background:none;color:var(--t);border:1px solid var(--b);border-radius:7px;font-size:13px;cursor:pointer}
-    .dl-btn:hover{background:var(--bg)}
-    .letter-body{padding:26px 30px;font-size:15px;line-height:1.85;color:var(--t);white-space:pre-wrap;font-family:Georgia,"Times New Roman",serif;min-height:200px}
+    /* SUCCESS */
+    .success-header { margin-bottom: 24px; }
+    .success-badge { display: inline-flex; align-items: center; gap: 6px; background: #D1FAE5; color: #065F46; font-size: 13px; font-weight: 600; padding: 5px 14px; border-radius: 100px; margin-bottom: 12px; }
+    .success-title { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 6px; }
+    .success-sub { font-size: 15px; color: var(--slate-500); }
+    .output-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+    .btn-action { padding: 9px 18px; border-radius: 8px; border: 1.5px solid var(--slate-200); background: white; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--slate-700); cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
+    .btn-action:hover { border-color: var(--indigo); color: var(--indigo); }
+    .btn-action.copied { border-color: var(--green); color: var(--green); background: #D1FAE5; }
+    .proposal-output { background: white; border: 1.5px solid var(--slate-200); border-radius: 12px; padding: 28px; font-size: 15px; line-height: 1.8; color: var(--slate-700); }
+    .proposal-output h2 { font-size: 16px; font-weight: 700; color: var(--slate-900); margin: 22px 0 8px; padding-bottom: 6px; border-bottom: 1px solid var(--slate-100); }
+    .proposal-output h2:first-child { margin-top: 0; }
+    .proposal-output h3 { font-size: 15px; font-weight: 700; color: var(--slate-900); margin: 14px 0 6px; }
+    .proposal-output ul, .proposal-output ol { padding-left: 20px; margin: 6px 0; }
+    .proposal-output li { margin-bottom: 5px; }
+    .proposal-output strong { color: var(--slate-900); }
+    .proposal-output p { margin: 8px 0; }
+    .proposal-output hr { border: none; border-top: 1px solid var(--slate-200); margin: 16px 0; }
 
     /* UPSELL */
-    .upsell{background:var(--s);border:2px solid var(--ab);border-radius:14px;padding:20px 24px;margin-bottom:16px;display:none}
-    .upsell-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-    .upsell h3{font-size:15px;font-weight:700;letter-spacing:-.2px}
-    .upsell-price{font-size:13px;font-weight:600;color:var(--a);background:var(--al);padding:3px 10px;border-radius:10px}
-    .upsell p{font-size:13px;color:var(--m);margin-bottom:14px;line-height:1.5}
-    .upsell-teaser-btn{width:100%;padding:11px;background:var(--a);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer}
-    .upsell-teaser-btn:hover{background:var(--ah)}
-    .upsell-form{display:none;margin-top:4px}
-    .upsell-form textarea{width:100%;padding:10px 12px;border:1px solid var(--b);border-radius:8px;font-size:13px;font-family:inherit;background:var(--bg);resize:vertical;min-height:100px;margin-bottom:10px}
-    .upsell-form textarea:focus{outline:none;border-color:var(--a)}
-    .upsell-btn{width:100%;padding:11px;background:var(--a);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer}
-    .upsell-btn:hover{background:var(--ah)}
-    .upsell-btn:disabled{background:#a0b8ad;cursor:not-allowed}
-    .upsell-skip{display:block;text-align:center;font-size:12px;color:var(--m);margin-top:8px;cursor:pointer;border:none;background:none}
+    .upsell-card { background: white; border: 1.5px solid var(--indigo); border-radius: 16px; padding: 28px; margin-top: 24px; display: flex; gap: 20px; align-items: flex-start; }
+    .upsell-icon { font-size: 28px; flex-shrink: 0; }
+    .upsell-content h3 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+    .upsell-content p { font-size: 14px; color: var(--slate-500); margin-bottom: 14px; }
+    .btn-upsell { display: inline-flex; align-items: center; gap: 6px; background: var(--indigo); color: white; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; text-decoration: none; transition: background 0.15s; }
+    .btn-upsell:hover { background: var(--indigo-dark); }
 
-    /* REFERRAL SHARE */
-    .share-box{background:var(--al);border:1px solid var(--ab);border-radius:14px;padding:20px 24px;margin-bottom:16px;display:none}
-    .share-box h3{font-size:15px;font-weight:700;margin-bottom:6px}
-    .share-box p{font-size:13px;color:var(--m);margin-bottom:14px}
-    .share-url-row{display:flex;gap:8px}
-    .share-url{flex:1;padding:9px 12px;background:#fff;border:1px solid var(--ab);border-radius:8px;font-size:12px;color:var(--t);font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .share-copy{padding:9px 14px;background:var(--a);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
-    .share-copy.copied{background:#16a34a}
-    .share-note{font-size:11px;color:var(--a);margin-top:8px}
+    /* REFERRAL */
+    .referral-card { background: var(--slate-50); border: 1.5px solid var(--slate-200); border-radius: 16px; padding: 24px; margin-top: 16px; }
+    .referral-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+    .referral-card p { font-size: 13px; color: var(--slate-500); margin-bottom: 14px; }
+    .share-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn-share { padding: 8px 16px; border-radius: 8px; border: 1.5px solid var(--slate-200); background: white; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+    .btn-share:hover { border-color: var(--indigo); }
+    .btn-share-twitter { border-color: #1DA1F2; color: #1DA1F2; }
+    .btn-share-linkedin { border-color: #0077B5; color: #0077B5; }
+    .btn-share-copy { color: var(--slate-700); }
 
-    .actions{display:flex;gap:12px;flex-wrap:wrap}
-    .btn-secondary{flex:1;padding:11px;background:var(--s);color:var(--t);border:1px solid var(--b);border-radius:9px;font-size:14px;font-weight:500;cursor:pointer;text-align:center;text-decoration:none}
-    .btn-secondary:hover{background:var(--bg)}
-    .btn-primary{flex:1;padding:11px;background:var(--a);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:500;cursor:pointer}
-    .btn-primary:hover{background:var(--ah)}
-    @media(max-width:520px){.letter-body{padding:18px 16px}}
+    /* NEW PROPOSAL */
+    .new-proposal-cta { text-align: center; margin-top: 28px; }
+    .new-proposal-cta a { color: var(--slate-500); font-size: 14px; text-decoration: none; }
+    .new-proposal-cta a:hover { color: var(--indigo); }
   </style>
 </head>
 <body>
-<nav><a class="logo" href="/">Snabb<span>rev</span></a></nav>
-<main>
-  <div class="loading" id="loading">
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo"><div class="logo-icon">S</div>ScopeAI</a>
+  </div>
+</nav>
+
+<div class="page">
+
+  <!-- LOADING STATE -->
+  <div class="loading-card" id="loadingCard">
     <div class="spinner"></div>
-    <p>Skriver ditt personliga brev…</p>
+    <h2>Generating your proposal…</h2>
+    <p>This takes about 15–30 seconds. Please don't close this tab.</p>
     <div class="loading-steps">
-      <div class="lstep active" id="ls1">Analyserar jobbannonsen</div>
-      <div class="lstep" id="ls2">Matchar profilen mot kraven</div>
-      <div class="lstep" id="ls3">Extraherar ATS-nyckelord</div>
-      <div class="lstep" id="ls4">Skriver brevet</div>
-      <div class="lstep" id="ls5">Levererar till din email</div>
+      <div class="loading-step active" id="step1"><div class="step-dot"></div>Verifying payment…</div>
+      <div class="loading-step" id="step2"><div class="step-dot"></div>Analyzing project brief…</div>
+      <div class="loading-step" id="step3"><div class="step-dot"></div>Writing scope of work &amp; pricing…</div>
+      <div class="loading-step" id="step4"><div class="step-dot"></div>Finalizing your proposal…</div>
     </div>
   </div>
 
-  <div class="error-box" id="error-box"><p id="error-text">Något gick fel. Kontakta hej@snabbrev.se</p></div>
+  <!-- ERROR STATE -->
+  <div class="error-card" id="errorCard">
+    <h2>Something went wrong</h2>
+    <p id="errorMsg">We couldn't generate your proposal. Your payment was recorded. Please email <a href="mailto:support@scopeai.io">support@scopeai.io</a> with your Stripe receipt and we'll generate your proposal manually within 1 hour.</p>
+    <p><a href="/generate">← Try again</a></p>
+  </div>
 
-  <div id="result" style="display:none">
+  <!-- SUCCESS STATE (hidden until loaded) -->
+  <div id="successState" style="display:none">
     <div class="success-header">
-      <div class="check-circle"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
-      <div>
-        <h1>Ditt personliga brev är klart!</h1>
-        <p id="letter-subtitle">Kopiera och skicka.</p>
+      <div class="success-badge">✓ Proposal ready</div>
+      <h1 class="success-title">Your proposal is ready to send</h1>
+      <p class="success-sub">Copy the text below, download as PDF, or edit directly before sending to your client.</p>
+    </div>
+
+    <div class="output-actions">
+      <button class="btn-action" id="btnCopy" onclick="copyProposal()">📋 Copy full text</button>
+      <button class="btn-action" onclick="downloadPdf()">⬇ Download PDF</button>
+      <button class="btn-action" onclick="window.print()">🖨 Print</button>
+    </div>
+
+    <div class="proposal-output" id="proposalOutput"></div>
+
+    <!-- UPSELL: Pro subscription -->
+    <div class="upsell-card" id="upsellCard" style="display:none">
+      <div class="upsell-icon">⚡</div>
+      <div class="upsell-content">
+        <h3>Send proposals every week? Get unlimited for $29/month.</h3>
+        <p>ScopeAI Pro gives you unlimited proposals, PDF export, all tone options, and priority generation — for the price of one pay-per-use proposal per week.</p>
+        <a href="/generate?plan=pro" class="btn-upsell">Upgrade to Pro — $29/month →</a>
       </div>
     </div>
 
-    <div class="ats-strip" id="ats-strip">
-      <div class="ats-label">ATS-nyckelord inkluderade i ditt brev</div>
-      <div class="ats-tags" id="ats-tags"></div>
+    <!-- REFERRAL / SHARE -->
+    <div class="referral-card">
+      <h3>Know another freelancer who spends hours on proposals?</h3>
+      <p>Share ScopeAI — they'll thank you for it.</p>
+      <div class="share-row">
+        <button class="btn-share btn-share-twitter" onclick="shareTwitter()">𝕏 Share on X</button>
+        <button class="btn-share btn-share-linkedin" onclick="shareLinkedIn()">in Share on LinkedIn</button>
+        <button class="btn-share btn-share-copy" id="btnShareCopy" onclick="copyLink()">🔗 Copy link</button>
+      </div>
     </div>
 
-    <div class="email-confirm" id="email-confirm">📩 Brevet har skickats till din email</div>
-
-    <div class="letter-card">
-      <div class="letter-toolbar">
-        <div class="letter-meta">Till: <strong id="meta-company">–</strong> · <strong id="meta-job">–</strong></div>
-        <div class="toolbar-btns">
-          <button class="dl-btn" onclick="downloadLetter()">Ladda ner</button>
-          <button class="copy-btn" id="copy-btn" onclick="copyLetter()">Kopiera</button>
-        </div>
-      </div>
-      <div class="letter-body" id="letter-body"></div>
-    </div>
-
-    <!-- UPSELL: CV-granskning -->
-    <div class="upsell" id="upsell">
-      <div class="upsell-header">
-        <h3>Vill du ha ditt CV granskat mot jobbet?</h3>
-        <span class="upsell-price">29 kr</span>
-      </div>
-      <p>Klistra in ditt CV så analyserar AI:n det mot jobbannonsen du just sökte — vad som saknas, vilka nyckelord du bör lägga till och hur du sticker ut.</p>
-      <button class="upsell-teaser-btn" onclick="showCvForm()">Ja, granska mitt CV — 29 kr</button>
-      <div class="upsell-form" id="upsell-form">
-        <textarea id="cv-text" placeholder="Klistra in ditt CV här — arbetslivserfarenhet, utbildning, kompetenser..."></textarea>
-        <button class="upsell-btn" id="upsell-pay-btn" onclick="buyUpsell()">Betala 29 kr och granska →</button>
-      </div>
-      <button class="upsell-skip" onclick="document.getElementById('upsell').style.display='none'">Nej tack</button>
-    </div>
-
-    <!-- REFERRAL SHARE -->
-    <div class="share-box" id="share-box">
-      <h3>🎁 Dela Snabbrev — tjäna pengar</h3>
-      <p>Din unika länk ger vänner 10 kr rabatt. Varje gång någon köper via din länk skickar vi 10 kr till dig via Swish.</p>
-      <div class="share-url-row">
-        <div class="share-url" id="share-url">snabbrev.se/?ref=SHARE10</div>
-        <button class="share-copy" id="share-copy-btn" onclick="copyShareUrl()">Kopiera länk</button>
-      </div>
-      <p class="share-note">Skicka till hej@snabbrev.se för att ta emot din Swish-utbetalning</p>
-    </div>
-
-    <div class="actions">
-      <a class="btn-secondary" href="/">Skriv ett till brev</a>
-      <button class="btn-primary" onclick="copyLetter()">Kopiera text</button>
+    <div class="new-proposal-cta">
+      <a href="/generate">← Generate another proposal</a>
     </div>
   </div>
-</main>
 
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
-const params = new URLSearchParams(window.location.search);
-const sessionId = params.get('session_id');
-const freeSession = params.get('free_session');
-const effectiveId = sessionId || (freeSession ? 'free_' + freeSession : null);
-let currentJob = '', currentCompany = '';
+  const SESSION_ID = new URLSearchParams(location.search).get('session_id');
 
-// Animate loading steps — advance through steps, last one pulses until done
-const steps = ['ls1','ls2','ls3','ls4','ls5'];
-const stepDelays = [0, 2500, 5000, 8500, 13000];
-const timers = stepDelays.map((delay, i) => setTimeout(() => {
-  if (i > 0) { document.getElementById(steps[i-1]).classList.remove('active'); document.getElementById(steps[i-1]).classList.add('done'); }
-  document.getElementById(steps[i]).classList.add('active');
-}, delay));
-
-function clearStepTimers() { timers.forEach(t => clearTimeout(t)); }
-function finishSteps() {
-  clearStepTimers();
-  steps.forEach(s => { const el = document.getElementById(s); el.classList.remove('active'); el.classList.add('done'); });
-}
-
-if (!effectiveId) showError('Ingen session hittades. Gå tillbaka och försök igen.');
-else fetchLetter(effectiveId);
-
-async function fetchLetter(id) {
-  try {
-    const res = await fetch(`/api/generate?session_id=${id}`);
-    const data = await res.json();
-    finishSteps();
-    if (!res.ok) throw new Error(data.error||'Serverfel');
-    showLetter(data);
-  } catch(err) { clearStepTimers(); showError(err.message); }
-}
-
-function showLetter({ letter, jobTitle, company, keywords, emailSent }) {
-  document.getElementById('loading').style.display = 'none';
-  document.getElementById('result').style.display = 'block';
-  document.getElementById('letter-body').textContent = letter;
-  document.getElementById('meta-company').textContent = company||'–';
-  document.getElementById('meta-job').textContent = jobTitle||'–';
-  document.getElementById('letter-subtitle').textContent = `${jobTitle} på ${company} · klart att skicka`;
-  currentJob = jobTitle; currentCompany = company;
-
-  if (keywords?.length) {
-    document.getElementById('ats-strip').style.display = 'block';
-    document.getElementById('ats-tags').innerHTML = keywords.slice(0,12).map(k=>`<span class="ats-tag">${k}</span>`).join('');
+  function advanceStep(n) {
+    const steps = ['step1','step2','step3','step4'];
+    for (let i = 0; i < n; i++) {
+      document.getElementById(steps[i]).classList.remove('active');
+      document.getElementById(steps[i]).classList.add('done');
+    }
+    if (n < steps.length) document.getElementById(steps[n]).classList.add('active');
   }
-  if (emailSent) document.getElementById('email-confirm').style.display = 'block';
 
-  // Show upsell after 2s
-  setTimeout(() => { document.getElementById('upsell').style.display = 'block'; }, 2000);
+  async function fetchProposal() {
+    if (!SESSION_ID) {
+      showError('No payment session found. <a href="/generate">Start over →</a>');
+      return;
+    }
 
-  // Show referral share
-  setTimeout(() => { document.getElementById('share-box').style.display = 'block'; }, 3000);
+    advanceStep(1);
+    setTimeout(() => advanceStep(2), 4000);
+    setTimeout(() => advanceStep(3), 10000);
 
-  // Track conversion event
-  if (window.va) window.va('event', { name: 'letter_generated' });
-}
+    let lastError = '';
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const res = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'paid', session_id: SESSION_ID }),
+        });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error || 'Generation failed.');
 
-function showError(msg) {
-  document.getElementById('loading').style.display = 'none';
-  const box = document.getElementById('error-box');
-  document.getElementById('error-text').textContent = msg;
-  box.style.display = 'block';
-}
-
-function copyLetter() {
-  navigator.clipboard.writeText(document.getElementById('letter-body').textContent).then(() => {
-    const btn = document.getElementById('copy-btn');
-    btn.textContent = 'Kopierat!'; btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = 'Kopiera'; btn.classList.remove('copied'); }, 2500);
-    if (window.va) window.va('event', { name: 'letter_copied' });
-  });
-}
-
-function downloadLetter() {
-  const text = document.getElementById('letter-body').textContent;
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([text],{type:'text/plain;charset=utf-8'}));
-  a.download = `personligt-brev-${currentJob.replace(/\s+/g,'-').toLowerCase()||'snabbrev'}.txt`;
-  a.click();
-}
-
-function showCvForm() {
-  document.getElementById('upsell-form').style.display = 'block';
-  document.querySelector('.upsell-teaser-btn').style.display = 'none';
-  document.getElementById('cv-text').focus();
-}
-
-async function buyUpsell() {
-  const cvText = document.getElementById('cv-text').value.trim();
-  if (!cvText) { document.getElementById('cv-text').focus(); return; }
-  const btn = document.getElementById('upsell-pay-btn');
-  btn.disabled = true; btn.textContent = 'Skapar betalningssida…';
-  if (window.va) window.va('event', { name: 'upsell_clicked' });
-  try {
-    const res = await fetch('/api/checkout', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        jobTitle: 'CV-granskning',
-        company: currentCompany,
-        jobDescription: `CV-granskning för ${currentJob} på ${currentCompany}`,
-        background: cvText,
-        isUpsell: true,
-      })
-    });
-    const data = await res.json();
-    if (data.url) window.location.href = data.url;
-    else throw new Error(data.error);
-  } catch(e) {
-    btn.disabled = false; btn.textContent = 'Betala 29 kr och granska →';
-    alert('Något gick fel, försök igen.');
+        advanceStep(4);
+        setTimeout(() => showSuccess(json.proposal), 500);
+        return;
+      } catch (err) {
+        lastError = err.message;
+        if (attempt < 2) await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)));
+      }
+    }
+    showError(lastError || 'Generation failed after 3 attempts. Email <a href="mailto:support@scopeai.io">support@scopeai.io</a> with your receipt for a manual generation within 1 hour.');
   }
-}
 
-function copyShareUrl() {
-  const url = 'https://snabbrev.se/?ref=SHARE10';
-  navigator.clipboard.writeText(url).then(() => {
-    const btn = document.getElementById('share-copy-btn');
-    btn.textContent = 'Kopierat!'; btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = 'Kopiera länk'; btn.classList.remove('copied'); }, 2500);
-    if (window.va) window.va('event', { name: 'referral_shared' });
-  });
-}
+  function showSuccess(markdown) {
+    document.getElementById('loadingCard').style.display = 'none';
+    document.getElementById('successState').style.display = 'block';
+    document.getElementById('proposalOutput').innerHTML = markdownToHtml(markdown);
+    document.getElementById('upsellCard').style.display = 'flex';
+
+    if (window.va) window.va('event', { name: 'proposal_delivered', data: { type: 'paid' } });
+  }
+
+  function showError(msg) {
+    document.getElementById('loadingCard').style.display = 'none';
+    document.getElementById('errorCard').style.display = 'block';
+    document.getElementById('errorMsg').innerHTML = msg;
+  }
+
+  function markdownToHtml(md) {
+    return md
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+      .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      .replace(/^\d+\. (.+)$/gm, '<li data-ol>$1</li>')
+      .replace(/^[-•] (.+)$/gm, '<li>$1</li>')
+      .replace(/^---$/gm, '<hr />')
+      .replace(/\n\n/g, '\n')
+      .split('\n')
+      .reduce((acc, line) => {
+        if (line.startsWith('<li') || line.startsWith('<h') || line.startsWith('<hr')) return acc + line;
+        if (line.trim() === '') return acc + '';
+        return acc + '<p>' + line + '</p>';
+      }, '');
+  }
+
+  async function copyProposal() {
+    const text = document.getElementById('proposalOutput').innerText;
+    await navigator.clipboard.writeText(text);
+    const btn = document.getElementById('btnCopy');
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '📋 Copy full text'; btn.classList.remove('copied'); }, 2500);
+    if (window.va) window.va('event', { name: 'proposal_copied', data: { type: 'paid' } });
+  }
+
+  function downloadPdf() {
+    const el = document.getElementById('proposalOutput');
+    const opt = {
+      margin: [15, 15, 15, 15],
+      filename: 'proposal-scopeai.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    };
+    html2pdf().set(opt).from(el).save();
+    if (window.va) window.va('event', { name: 'pdf_downloaded', data: { type: 'paid' } });
+  }
+
+  function shareTwitter() {
+    const text = encodeURIComponent('Just generated a full client proposal (scope, timeline, 3-tier pricing) in 30 seconds with ScopeAI. Huge time saver for freelancers 👇');
+    const url = encodeURIComponent('https://scopeai.io');
+    window.open('https://twitter.com/intent/tweet?text=' + text + '&url=' + url, '_blank');
+    if (window.va) window.va('event', { name: 'share_clicked', data: { platform: 'twitter' } });
+  }
+
+  function shareLinkedIn() {
+    const url = encodeURIComponent('https://scopeai.io');
+    window.open('https://www.linkedin.com/sharing/share-offsite/?url=' + url, '_blank');
+    if (window.va) window.va('event', { name: 'share_clicked', data: { platform: 'linkedin' } });
+  }
+
+  async function copyLink() {
+    await navigator.clipboard.writeText('https://scopeai.io');
+    const btn = document.getElementById('btnShareCopy');
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => { btn.textContent = '🔗 Copy link'; }, 2000);
+  }
+
+  fetchProposal();
 </script>
 </body>
 </html>

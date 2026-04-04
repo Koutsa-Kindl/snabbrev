@@ -1,10 +1,10 @@
 {
   "rewrites": [
-    { "source": "/success", "destination": "/success.html" },
-    { "source": "/dashboard", "destination": "/dashboard.html" },
-    { "source": "/integritetspolicy", "destination": "/integritetspolicy.html" },
-    { "source": "/villkor", "destination": "/villkor.html" },
-    { "source": "/blogg/hur-skriver-man-personligt-brev", "destination": "/blogg/hur-skriver-man-personligt-brev.html" },
-    { "source": "/blogg/ats-vad-ar-det", "destination": "/blogg/ats-vad-ar-det.html" }
+    { "source": "/generate", "destination": "/generate.html" },
+    { "source": "/success",  "destination": "/success.html" },
+    { "source": "/privacy",  "destination": "/privacy.html" },
+    { "source": "/terms",    "destination": "/terms.html" },
+    { "source": "/blog/freelance-proposal-guide",  "destination": "/blog/freelance-proposal-guide.html" },
+    { "source": "/blog/scope-of-work-template",    "destination": "/blog/scope-of-work-template.html" }
   ]
 }

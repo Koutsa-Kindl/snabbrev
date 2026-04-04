@@ -1,198 +1,151 @@
 const Stripe = require("stripe");
 const Anthropic = require("@anthropic-ai/sdk");
 
-// Retry wrapper: retries up to `retries` times with linear backoff
-async function withRetry(fn, retries = 3, delayMs = 2000) {
+async function withRetry(fn, retries = 3, delayMs = 1000) {
   for (let attempt = 0; attempt < retries; attempt++) {
     try {
       return await fn();
     } catch (err) {
       if (attempt === retries - 1) throw err;
-      await new Promise(r => setTimeout(r, delayMs * (attempt + 1)));
+      await new Promise((r) => setTimeout(r, delayMs * Math.pow(2, attempt)));
     }
   }
 }
+
+const SYSTEM_PROMPT = `You are an expert senior consultant and proposal writer with 15+ years winning high-value B2B contracts worth $5,000 to $250,000. Your proposals are specific, confident, and persuasive — they sound like a seasoned professional who deeply understands the client's business, not a generic AI template.
+
+Generate a professional, client-ready project proposal based on the brief provided. Use the client's industry vocabulary. Be specific — never write filler or generic placeholder text.
+
+Output ONLY the proposal in clean Markdown. No preamble, no explanation, no meta-commentary.
+
+REQUIRED FORMAT (use these exact headings):
+
+## Executive Summary
+2-3 sentences: frame the client's specific problem, your solution, and the concrete business outcome they'll get. Reference specific numbers or outcomes where possible.
+
+## Scope of Work
+Numbered list of 5-8 specific deliverables. Each item should name the exact output the client receives (e.g., "Figma prototype with 6 screen states" not "Design work").
+
+## What's NOT Included
+3-5 bullet points of common scope creep items that are explicitly excluded. Be specific to this project type. This section prevents disputes later.
+
+## Project Timeline
+Phase-based breakdown with durations. 3-4 phases. Example: "Phase 1: Discovery & Brief — 3 days"
+
+## Investment
+
+### Essential — $[X]
+[Describe what's included in this tier — the minimum viable version]
+
+### Professional — $[X] *(Recommended)*
+[Core deliverables + the most valuable additions. This should be the obvious choice.]
+
+### Premium — $[X]
+[Everything in Professional + premium extras like rush delivery, extra revisions, or ongoing support]
+
+## Why Work With Us
+2-3 sentences. Confident, specific positioning relevant to this type of project. No buzzwords.
+
+## Next Steps
+3 bullet points describing exactly what happens after the client says yes. Action-oriented, specific.
+
+PRICING RULES:
+- If budget is provided, set Professional tier at that budget, Essential at 65% of it, Premium at 145% of it
+- If no budget provided, estimate a fair market rate based on the scope
+- Always show USD unless client currency is specified
+- Round prices to clean numbers ($4,800 not $4,750)
+
+TONE RULES:
+- formal: polished corporate language, third person when referring to your firm
+- friendly: warm but professional, conversational, use contractions
+- technical: precise technical terminology, emphasis on methodology and specifications`;
 
 module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  if (req.method !== "GET") return res.status(405).json({ error: "Method not allowed" });
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  if (req.method === "OPTIONS") return res.status(200).end();
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
-  const { session_id } = req.query;
-  if (!session_id) return res.status(400).json({ error: "session_id krävs" });
+  const { type, session_id, projectDescription, serviceType, specialty, budget, tone, clientName, clientIndustry, yourName, isWatermarked } = req.body || {};
 
-  // Free session (KINDL100) — no Stripe verification needed
-  let jobTitle, company, jobDescription, background, email, linkedinData, companyInfo, isUpsell;
+  let fields = {};
+  let watermark = false;
 
-  if (session_id.startsWith("free_")) {
-    try {
-      const decoded = JSON.parse(Buffer.from(session_id.slice(5), "base64url").toString());
-      ({ jobTitle, company, jobDescription, background, email } = decoded);
-      isUpsell = false;
-    } catch {
-      return res.status(400).json({ error: "Ogiltig session." });
+  if (type === "free") {
+    // Free tier — no payment verification
+    if (!projectDescription || projectDescription.trim().length < 20) {
+      return res.status(400).json({ error: "Please describe your project in at least 20 characters." });
     }
-  } else {
+    fields = { projectDescription, serviceType, specialty, budget, tone, clientName, clientIndustry, yourName };
+    watermark = true;
+  } else if (type === "paid") {
+    // Paid tier — verify Stripe session
+    if (!session_id) return res.status(400).json({ error: "session_id required." });
     try {
       const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
       const session = await stripe.checkout.sessions.retrieve(session_id);
-
       if (session.payment_status !== "paid") {
-        return res.status(402).json({ error: "Betalning ej genomförd." });
+        return res.status(402).json({ error: "Payment not completed." });
       }
-
-      ({ linkedinData, background, email, companyInfo } = session.metadata);
-      jobTitle = session.metadata.jobTitle;
-      company = session.metadata.company;
-      isUpsell = session.metadata.isUpsell === "true";
-
-      // Reassemble jobDescription — split across jobDesc1/2/3, old sessions used jobDescription
-      jobDescription = session.metadata.jobDesc1 !== undefined
-        ? (session.metadata.jobDesc1 || "") + (session.metadata.jobDesc2 || "") + (session.metadata.jobDesc3 || "")
-        : (session.metadata.jobDescription || "");
+      const m = session.metadata;
+      fields = {
+        projectDescription: (m.projDesc1 || "") + (m.projDesc2 || "") + (m.projDesc3 || ""),
+        serviceType: m.serviceType,
+        specialty: m.specialty,
+        budget: m.budget,
+        tone: m.tone,
+        clientName: m.clientName,
+        clientIndustry: m.clientIndustry,
+        yourName: m.yourName,
+      };
+      watermark = false;
     } catch (err) {
-      console.error(err);
-      return res.status(500).json({ error: "Kunde inte verifiera betalning." });
+      console.error("Stripe verification error:", err);
+      return res.status(500).json({ error: "Could not verify payment. Email support@scopeai.io with your payment receipt and we'll sort it out immediately." });
     }
+  } else {
+    return res.status(400).json({ error: "Invalid request type." });
   }
 
-  try {
+  const { projectDescription: desc, serviceType: svc, specialty: spec, budget: bdg, tone: tn, clientName: cName, clientIndustry: cIndustry, yourName: yName } = fields;
 
+  const userPrompt = `Generate a professional project proposal based on this brief:
+
+PROJECT DESCRIPTION:
+${desc}
+
+SERVICE TYPE: ${svc || "Freelance / Consulting"}
+SPECIALTY / TECH STACK: ${spec || "Not specified"}
+BUDGET / RATE: ${bdg || "To be estimated"}
+PREFERRED TONE: ${tn || "professional"}
+CLIENT / COMPANY NAME: ${cName || "the client"}
+CLIENT INDUSTRY: ${cIndustry || "Not specified"}
+FREELANCER / AGENCY NAME: ${yName || "[Your Name]"}`;
+
+  try {
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-    // Step 1: Analyze the job listing for ATS keywords and tone
-    const analysisMsg = await withRetry(() => anthropic.messages.create({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 500,
-      messages: [{
-        role: "user",
-        content: `Analysera denna jobbannons och returnera BARA ett JSON-objekt (inget annat):
-{
-  "keywords": ["nyckelord1", "nyckelord2", ...],
-  "tone": "formal|casual|startup|corporate",
-  "keyRequirements": ["krav1", "krav2", ...],
-  "companyVibe": "kort beskrivning av företagskulturen baserat på annonsen"
-}
+    const msg = await withRetry(() =>
+      anthropic.messages.create({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1500,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: "user", content: userPrompt }],
+      })
+    );
 
-Jobbannons:
-${jobDescription}`,
-      }],
-    }));
+    let proposal = msg.content[0].text;
 
-    let analysis = { keywords: [], tone: "professional", keyRequirements: [], companyVibe: "" };
-    try {
-      const raw = analysisMsg.content[0].text.replace(/```json|```/g, "").trim();
-      analysis = JSON.parse(raw);
-    } catch {}
-
-    // Step 2: Generate the letter with full context
-    const linkedinSection = linkedinData
-      ? `\nSökandens LinkedIn-profil:\n${linkedinData}`
-      : `\nSökandens bakgrund:\n${background || "Ej angiven"}`;
-
-    const companySection = companyInfo
-      ? `\nFöretagsinformation (från deras webbplats):\n${companyInfo}`
-      : "";
-
-
-    const prompt = isUpsell
-      ? `Du är en expert på rekrytering och CV-optimering. Analysera detta CV mot jobbannonsen och ge konkret, specifik feedback på svenska.
-
-TJÄNST: ${jobTitle}
-FÖRETAG: ${company}
-JOBBANNONS/KONTEXT: ${jobDescription}
-
-CV:
-${background || "Ej angivet"}
-
-INSTRUKTIONER:
-Ge feedback i dessa tre delar — var specifik, inte generell:
-
-1. STYRKOR (2-3 punkter)
-Vad i CV:t matchar jobbet bra? Lyft fram konkreta saker.
-
-2. SAKNAS / KAN STÄRKAS (3-4 punkter)
-Vad efterfrågas i jobbannonsen som inte syns i CV:t? Vilka nyckelord bör läggas till? Vad bör förtydligas?
-
-3. REKOMMENDATIONER (2-3 punkter)
-Konkreta åtgärder: exakt vad ska läggas till, ändras eller omformuleras för att CV:t ska passa bättre.
-
-Skriv BARA feedbacken, inga inledningar eller avslutningar.`
-      : `Du är en expert på att skriva personliga brev på svenska som faktiskt leder till intervjuer.
-
-TJÄNST: ${jobTitle}
-FÖRETAG: ${company}
-
-JOBBANNONS:
-${jobDescription}
-
-${linkedinSection}
-${companySection}
-
-ANALYS AV JOBBANNONSEN:
-- Ton/kultur: ${analysis.tone}
-- Företagskänsla: ${analysis.companyVibe}
-- ATS-nyckelord att inkludera naturligt: ${analysis.keywords.join(", ")}
-- Viktigaste krav: ${analysis.keyRequirements.join(", ")}
-
-INSTRUKTIONER:
-1. Skriv på svenska, matcha brevets ton till företagskulturen (${analysis.tone})
-2. Inled med en stark, unik öppningsmening — ALDRIG "Härmed söker jag" eller "Jag skriver angående"
-3. Koppla sökandens specifika erfarenheter till jobbannonsens krav med konkreta exempel
-4. Inkludera dessa nyckelord naturligt i texten: ${analysis.keywords.slice(0, 6).join(", ")}
-5. Referera specifikt till ${company} — visa att du förstår vad de gör och varför du vill jobba just där
-6. 3-4 stycken, max en A4-sida
-7. Avsluta med tydlig CTA för intervju
-8. Börja med "Hej," eller "Till rekryteringsansvarig," — skriv sedan BARA brevet, inga förklaringar
-
-VIKTIGT: Brevet ska kännas genuint och mänskligt skrivet, inte som en mall. Varje mening ska ha ett syfte.`;
-
-    const letterMsg = await withRetry(() => anthropic.messages.create({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 1024,
-      messages: [{ role: "user", content: prompt }],
-    }));
-
-    const letter = letterMsg.content[0].text;
-
-    // Step 3: Send email directly via Resend (inline — self-referencing fetch unreliable in Vercel)
-    if (email && email.includes("@") && process.env.RESEND_API_KEY) {
-      const html = `<!DOCTYPE html><html lang="sv"><head><meta charset="UTF-8"><style>
-        body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f9f8f6;margin:0;padding:40px 20px}
-        .wrap{max-width:600px;margin:0 auto;background:#fff;border-radius:12px;border:1px solid #e5e3de;overflow:hidden}
-        .header{background:#2d6a4f;padding:24px 32px;color:#fff}
-        .header h1{font-size:18px;margin:0;font-weight:600}
-        .header p{margin:4px 0 0;font-size:13px;opacity:.8}
-        .body{padding:32px;font-size:15px;line-height:1.8;color:#1a1a18;white-space:pre-wrap;font-family:Georgia,serif}
-        .footer{padding:20px 32px;border-top:1px solid #e5e3de;font-size:12px;color:#6b6963;text-align:center}
-      </style></head><body>
-      <div class="wrap">
-        <div class="header"><h1>Ditt personliga brev</h1><p>${jobTitle} · ${company}</p></div>
-        <div class="body">${letter.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</div>
-        <div class="footer">Snabbrev.se · Genererat med Claude AI</div>
-      </div></body></html>`;
-
-      fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${process.env.RESEND_API_KEY}` },
-        body: JSON.stringify({
-          from: "Snabbrev <hej@snabbrev.se>",
-          to: [email],
-          subject: `Ditt personliga brev — ${jobTitle} på ${company}`,
-          html,
-          text: letter,
-        }),
-      }).catch(err => console.error("Email send failed:", err));
+    if (watermark) {
+      proposal += "\n\n---\n*Generated with [ScopeAI](https://scopeai.io) — AI proposals for freelancers who win projects.*";
     }
 
-    res.json({
-      letter,
-      jobTitle,
-      company,
-      keywords: analysis.keywords,
-      emailSent: !!email,
-    });
+    res.json({ proposal, watermark });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Något gick fel vid generering av brevet. Kontakta hej@snabbrev.se med din order så löser vi det." });
+    console.error("Generation error:", err);
+    res.status(500).json({
+      error: "Proposal generation failed. If you paid, email support@scopeai.io with your payment receipt and we'll generate your proposal manually within 1 hour.",
+    });
   }
 };

@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /generate
+Disallow: /success
 
-Sitemap: https://snabbrev.se/sitemap.xml
+Sitemap: https://scopeai.io/sitemap.xml

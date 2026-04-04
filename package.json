@@ -2,7 +2,9 @@
   "name": "scopeai",
   "version": "1.0.0",
   "description": "AI proposal generator for freelancers and consultants",
-  "engines": { "node": ">=18" },
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.36.0",
     "stripe": "^17.0.0"

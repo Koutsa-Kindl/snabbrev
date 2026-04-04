@@ -1,0 +1,20 @@
+{
+  "name": "Snabbrev",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:18",
+  "forwardPorts": [3000],
+  "postCreateCommand": "npm install",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "GitHub.copilot"
+      ]
+    }
+  },
+  "remoteEnv": {
+    "STRIPE_SECRET_KEY": "${localEnv:STRIPE_SECRET_KEY}",
+    "ANTHROPIC_API_KEY": "${localEnv:ANTHROPIC_API_KEY}",
+    "RESEND_API_KEY": "${localEnv:RESEND_API_KEY}"
+  }
+}

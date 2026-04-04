@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Snabbrev Dashboard</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f9f8f6;--s:#fff;--b:#e5e3de;--t:#1a1a18;--m:#6b6963;--a:#2d6a4f;--al:#e8f5ee;--ab:#b7dfc9}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--t);min-height:100vh}
+header{background:var(--s);border-bottom:1px solid var(--b);padding:16px 24px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:18px;font-weight:700}.logo span{color:var(--a)}
+.status-live{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--a)}
+.dot{width:8px;height:8px;background:var(--a);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+main{max-width:1100px;margin:0 auto;padding:24px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-bottom:24px}
+.card{background:var(--s);border:1px solid var(--b);border-radius:14px;padding:18px;text-decoration:none;color:var(--t);transition:border-color .15s,transform .1s;display:block}
+.card:hover{border-color:var(--a);transform:translateY(-1px)}
+.card-icon{font-size:22px;margin-bottom:10px}
+.card-title{font-size:14px;font-weight:600;margin-bottom:4px}
+.card-desc{font-size:12px;color:var(--m);line-height:1.5;margin-bottom:12px}
+.card-url{font-size:11px;color:var(--a);background:var(--al);padding:4px 10px;border-radius:6px;display:inline-block}
+.section-title{font-size:12px;font-weight:600;color:var(--m);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;margin-top:8px}
+.checklist{background:var(--s);border:1px solid var(--b);border-radius:14px;padding:20px;margin-bottom:14px}
+.check-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--b);font-size:13px}
+.check-item:last-child{border-bottom:none}
+.check-icon{font-size:16px;flex-shrink:0;width:20px;text-align:center}
+.check-label{flex:1}
+.check-action{font-size:11px;color:var(--a);background:var(--al);padding:3px 10px;border-radius:6px;white-space:nowrap;cursor:pointer;border:none;font-family:inherit}
+.check-action:hover{background:#d1eddf}
+.todo-badge{font-size:10px;background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5;padding:2px 7px;border-radius:10px;font-weight:500}
+.done-badge{font-size:10px;background:var(--al);color:var(--a);border:1px solid var(--ab);padding:2px 7px;border-radius:10px;font-weight:500}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.metric{background:var(--s);border:1px solid var(--b);border-radius:12px;padding:16px;text-align:center}
+.metric-val{font-size:24px;font-weight:700;color:var(--t)}
+.metric-lbl{font-size:11px;color:var(--m);margin-top:4px}
+.tip{background:var(--al);border:1px solid var(--ab);border-radius:10px;padding:12px 16px;font-size:13px;color:var(--a);margin-bottom:14px}
+.tip strong{font-weight:600}
+@media(max-width:600px){.metrics{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Snabb<span>rev</span> <span style="font-size:13px;font-weight:400;color:var(--m);margin-left:8px">Dashboard</span></div>
+  <div class="status-live"><span class="dot"></span> Live på snabbrev.se</div>
+</header>
+
+<main>
+
+  <div class="tip">
+    <strong>Nästa steg:</strong> Registrera enskild firma på Verksamt.se (gratis, 5 min) → Lägg till RESEND_API_KEY i Vercel → Skicka in sitemap till Google Search Console.
+  </div>
+
+  <div class="section-title">📊 Estimerade nyckeltal</div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-val">49 kr</div><div class="metric-lbl">Pris per brev</div></div>
+    <div class="metric"><div class="metric-val">~47 kr</div><div class="metric-lbl">Vinst per brev</div></div>
+    <div class="metric"><div class="metric-val">3</div><div class="metric-lbl">Brev för break-even</div></div>
+    <div class="metric"><div class="metric-val">~14k</div><div class="metric-lbl">kr/mån vid 10/dag</div></div>
+  </div>
+
+  <div class="section-title">🔗 Alla dina konton</div>
+  <div class="grid">
+    <a class="card" href="https://snabbrev.se" target="_blank">
+      <div class="card-icon">🌐</div>
+      <div class="card-title">Snabbrev — live sajt</div>
+      <div class="card-desc">Din produkt. Testa att köpa ett brev för att verifiera att hela flödet fungerar.</div>
+      <div class="card-url">snabbrev.se ↗</div>
+    </a>
+    <a class="card" href="https://vercel.com/dashboard" target="_blank">
+      <div class="card-icon">▲</div>
+      <div class="card-title">Vercel — hosting & deploys</div>
+      <div class="card-desc">Här deployar du nya versioner, lägger till miljövariabler och ser byggloggar.</div>
+      <div class="card-url">vercel.com/dashboard ↗</div>
+    </a>
+    <a class="card" href="https://dashboard.stripe.com" target="_blank">
+      <div class="card-icon">💳</div>
+      <div class="card-title">Stripe — betalningar</div>
+      <div class="card-desc">Se inkomna betalningar, hantera återbetalningar och hämta API-nycklar.</div>
+      <div class="card-url">dashboard.stripe.com ↗</div>
+    </a>
+    <a class="card" href="https://github.com" target="_blank">
+      <div class="card-icon">🐙</div>
+      <div class="card-title">GitHub — kod</div>
+      <div class="card-desc">Ladda upp nya versioner av koden här. Vercel deployar automatiskt.</div>
+      <div class="card-url">github.com ↗</div>
+    </a>
+    <a class="card" href="https://dash.cloudflare.com" target="_blank">
+      <div class="card-icon">🔶</div>
+      <div class="card-title">Cloudflare — DNS & email</div>
+      <div class="card-desc">DNS-inställningar för snabbrev.se och Email Routing (hej@snabbrev.se).</div>
+      <div class="card-url">dash.cloudflare.com ↗</div>
+    </a>
+    <a class="card" href="https://console.anthropic.com" target="_blank">
+      <div class="card-icon">🤖</div>
+      <div class="card-title">Anthropic — AI API</div>
+      <div class="card-desc">Se API-användning och kostnader. Varje brev kostar ~0,15 kr.</div>
+      <div class="card-url">console.anthropic.com ↗</div>
+    </a>
+    <a class="card" href="https://resend.com/emails" target="_blank">
+      <div class="card-icon">📩</div>
+      <div class="card-title">Resend — email-leverans</div>
+      <div class="card-desc">Skapa konto och hämta API-nyckel. Lägg till RESEND_API_KEY i Vercel.</div>
+      <div class="card-url">resend.com ↗</div>
+    </a>
+    <a class="card" href="https://vercel.com/analytics" target="_blank">
+      <div class="card-icon">📈</div>
+      <div class="card-title">Vercel Analytics — trafik</div>
+      <div class="card-desc">Besökare, sidvisningar, bounce rate. Byggs upp automatiskt.</div>
+      <div class="card-url">vercel.com/analytics ↗</div>
+    </a>
+    <a class="card" href="https://search.google.com/search-console" target="_blank">
+      <div class="card-icon">🔍</div>
+      <div class="card-title">Google Search Console</div>
+      <div class="card-desc">Skicka in sitemap.xml — påskyndar Google-indexering av bloggartiklarna.</div>
+      <div class="card-url">search.google.com/search-console ↗</div>
+    </a>
+    <a class="card" href="https://www.loopia.se/loggain/" target="_blank">
+      <div class="card-icon">🌍</div>
+      <div class="card-title">Loopia — domän</div>
+      <div class="card-desc">snabbrev.se är registrerad här. Förnyelse sker automatiskt.</div>
+      <div class="card-url">loopia.se ↗</div>
+    </a>
+    <a class="card" href="https://www.verksamt.se" target="_blank">
+      <div class="card-icon">🏢</div>
+      <div class="card-title">Verksamt — enskild firma</div>
+      <div class="card-desc">Registrera enskild firma gratis. Krävs för att ha org-nr på sajten (lagkrav).</div>
+      <div class="card-url">verksamt.se ↗</div>
+    </a>
+    <a class="card" href="https://www.skatteverket.se" target="_blank">
+      <div class="card-icon">📋</div>
+      <div class="card-title">Skatteverket — moms</div>
+      <div class="card-desc">Momsbefriad upp till 120 000 kr/år. Bevaka när du närmar dig gränsen.</div>
+      <div class="card-url">skatteverket.se ↗</div>
+    </a>
+  </div>
+
+  <div class="section-title">✅ Att göra — i prioritetsordning</div>
+  <div class="checklist">
+    <div class="check-item">
+      <span class="check-icon">⚠️</span>
+      <span class="check-label"><strong>Registrera enskild firma</strong> — lagkrav för att ta betalt av konsumenter</span>
+      <span class="todo-badge">Kritiskt</span>
+      <a href="https://www.verksamt.se/starta/registrera" target="_blank" style="text-decoration:none"><button class="check-action">Gör nu ↗</button></a>
+    </div>
+    <div class="check-item">
+      <span class="check-icon">📩</span>
+      <span class="check-label"><strong>Skapa Resend-konto</strong> och lägg till RESEND_API_KEY i Vercel</span>
+      <span class="todo-badge">Viktigt</span>
+      <a href="https://resend.com" target="_blank" style="text-decoration:none"><button class="check-action">Gör nu ↗</button></a>
+    </div>
+    <div class="check-item">
+      <span class="check-icon">🔍</span>
+      <span class="check-label"><strong>Skicka in sitemap</strong> till Google Search Console för snabbare indexering</span>
+      <span class="todo-badge">Viktigt</span>
+      <a href="https://search.google.com/search-console" target="_blank" style="text-decoration:none"><button class="check-action">Gör nu ↗</button></a>
+    </div>
+    <div class="check-item">
+      <span class="check-icon">📧</span>
+      <span class="check-label"><strong>Aktivera Cloudflare Email Routing</strong> för hej@snabbrev.se</span>
+      <span class="todo-badge">Viktigt</span>
+      <a href="https://dash.cloudflare.com" target="_blank" style="text-decoration:none"><button class="check-action">Gör nu ↗</button></a>
+    </div>
+    <div class="check-item">
+      <span class="check-icon">🧪</span>
+      <span class="check-label"><strong>Testa hela köpflödet</strong> — köp ett riktigt brev på snabbrev.se</span>
+      <span class="todo-badge">Viktigt</span>
+      <a href="https://snabbrev.se" target="_blank" style="text-decoration:none"><button class="check-action">Testa nu ↗</button></a>
+    </div>
+    <div class="check-item">
+      <span class="check-icon">📣</span>
+      <span class="check-label"><strong>Posta på Reddit r/sweden</strong> — texten finns i LANSERING.md</span>
+      <span class="todo-badge">Trafik</span>
+      <a href="https://reddit.com/r/sweden" target="_blank" style="text-decoration:none"><button class="check-action">Öppna ↗</button></a>
+    </div>
+    <div class="check-item">
+      <span class="check-icon">🚀</span>
+      <span class="check-label"><strong>Lansera på Product Hunt</strong> — texten finns i LANSERING.md</span>
+      <span class="todo-badge">Trafik</span>
+      <a href="https://producthunt.com" target="_blank" style="text-decoration:none"><button class="check-action">Öppna ↗</button></a>
+    </div>
+    <div class="check-item">
+      <span class="check-icon">✅</span>
+      <span class="check-label">Domän snabbrev.se registrerad på Loopia</span>
+      <span class="done-badge">Klart</span>
+    </div>
+    <div class="check-item">
+      <span class="check-icon">✅</span>
+      <span class="check-label">Cloudflare DNS konfigurerat</span>
+      <span class="done-badge">Klart</span>
+    </div>
+    <div class="check-item">
+      <span class="check-icon">✅</span>
+      <span class="check-label">Vercel deployment live</span>
+      <span class="done-badge">Klart</span>
+    </div>
+    <div class="check-item">
+      <span class="check-icon">✅</span>
+      <span class="check-label">Stripe + Anthropic API-nycklar inlagda</span>
+      <span class="done-badge">Klart</span>
+    </div>
+    <div class="check-item">
+      <span class="check-icon">✅</span>
+      <span class="check-label">Ångerrätt-checkbox, integritetspolicy och villkor byggt</span>
+      <span class="done-badge">Klart</span>
+    </div>
+    <div class="check-item">
+      <span class="check-icon">✅</span>
+      <span class="check-label">SEO-blogginlägg publicerade</span>
+      <span class="done-badge">Klart</span>
+    </div>
+  </div>
+
+  <div class="section-label">💰 Budget</div>
+  <div class="checklist">
+    <div class="check-item"><span class="check-icon">💸</span><span class="check-label">Domän snabbrev.se / år</span><strong style="color:#b91c1c">−99 kr</strong></div>
+    <div class="check-item"><span class="check-icon">✅</span><span class="check-label">Vercel hosting</span><strong style="color:var(--a)">0 kr/mån</strong></div>
+    <div class="check-item"><span class="check-icon">✅</span><span class="check-label">Cloudflare DNS + Email</span><strong style="color:var(--a)">0 kr/mån</strong></div>
+    <div class="check-item"><span class="check-icon">✅</span><span class="check-label">Resend email (upp till 3 000/mån)</span><strong style="color:var(--a)">0 kr/mån</strong></div>
+    <div class="check-item"><span class="check-icon">🤖</span><span class="check-label">Anthropic API per brev</span><strong>~0,15 kr/brev</strong></div>
+    <div class="check-item"><span class="check-icon">💳</span><span class="check-label">Stripe-avgift per brev</span><strong>~1,50 kr/brev</strong></div>
+    <div class="check-item"><span class="check-icon">💰</span><span class="check-label"><strong>Kvar i buffer</strong></span><strong style="color:var(--a);font-size:16px">901 kr</strong></div>
+  </div>
+
+</main>
+</body>
+</html>

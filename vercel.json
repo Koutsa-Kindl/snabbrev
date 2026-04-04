@@ -1,0 +1,9 @@
+{
+  "rewrites": [
+    { "source": "/success", "destination": "/success.html" },
+    { "source": "/integritetspolicy", "destination": "/integritetspolicy.html" },
+    { "source": "/villkor", "destination": "/villkor.html" },
+    { "source": "/blogg/hur-skriver-man-personligt-brev", "destination": "/blogg/hur-skriver-man-personligt-brev.html" },
+    { "source": "/blogg/ats-vad-ar-det", "destination": "/blogg/ats-vad-ar-det.html" }
+  ]
+}

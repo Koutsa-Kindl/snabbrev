@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ditt personliga brev – Snabbrev</title>
+  <!-- Vercel Analytics -->
+  <script defer src="/_vercel/insights/script.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#f9f8f6;--s:#fff;--b:#e5e3de;--t:#1a1a18;--m:#6b6963;--a:#2d6a4f;--ah:#245a42;--al:#e8f5ee;--ab:#b7dfc9}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--t);min-height:100vh}
+    nav{max-width:680px;margin:0 auto;padding:20px 24px;display:flex;align-items:center;justify-content:space-between}
+    .logo{font-size:18px;font-weight:700;color:var(--t);text-decoration:none}.logo span{color:var(--a)}
+    main{max-width:680px;margin:0 auto;padding:16px 24px 60px}
+
+    .loading{text-align:center;padding:70px 0}
+    .spinner{width:36px;height:36px;border:3px solid var(--b);border-top-color:var(--a);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .loading p{color:var(--m);font-size:15px;margin-bottom:20px}
+    .loading-steps{display:flex;flex-direction:column;gap:6px;max-width:260px;margin:0 auto}
+    .lstep{font-size:12px;color:var(--m);display:flex;align-items:center;gap:8px;opacity:.35;transition:opacity .5s}
+    .lstep.active{opacity:1;color:var(--a);font-weight:500}
+    .lstep.done{opacity:.6}
+    .lstep::before{content:"○";flex-shrink:0}
+    .lstep.active::before{content:"●"}
+    .lstep.done::before{content:"✓";color:var(--a)}
+
+    .error-box{background:#fef2f2;border:1px solid #fca5a5;color:#b91c1c;border-radius:10px;padding:20px;text-align:center;display:none}
+
+    .success-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px}
+    .check-circle{width:36px;height:36px;background:var(--al);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+    .check-circle svg{color:var(--a)}
+    .success-header h1{font-size:20px;font-weight:700;letter-spacing:-.3px;margin-bottom:3px}
+    .success-header p{font-size:13px;color:var(--m)}
+
+    /* ATS */
+    .ats-strip{background:var(--al);border:1px solid var(--ab);border-radius:10px;padding:12px 16px;margin-bottom:14px;display:none}
+    .ats-label{font-size:11px;font-weight:600;color:var(--a);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+    .ats-tags{display:flex;flex-wrap:wrap;gap:6px}
+    .ats-tag{font-size:12px;background:#fff;border:1px solid var(--ab);color:var(--a);padding:2px 10px;border-radius:10px}
+
+    /* EMAIL CONFIRM */
+    .email-confirm{background:var(--bg);border:1px solid var(--b);border-radius:8px;padding:9px 14px;margin-bottom:14px;font-size:13px;color:var(--m);display:none}
+
+    /* LETTER */
+    .letter-card{background:var(--s);border:1px solid var(--b);border-radius:14px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.05);margin-bottom:16px}
+    .letter-toolbar{display:flex;align-items:center;justify-content:space-between;padding:11px 18px;border-bottom:1px solid var(--b);background:var(--bg);gap:10px;flex-wrap:wrap}
+    .letter-meta{font-size:12px;color:var(--m)}.letter-meta strong{color:var(--t)}
+    .toolbar-btns{display:flex;gap:8px}
+    .copy-btn{padding:6px 14px;background:var(--a);color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer}
+    .copy-btn:hover{background:var(--ah)}.copy-btn.copied{background:#16a34a}
+    .dl-btn{padding:6px 14px;background:none;color:var(--t);border:1px solid var(--b);border-radius:7px;font-size:13px;cursor:pointer}
+    .dl-btn:hover{background:var(--bg)}
+    .letter-body{padding:26px 30px;font-size:15px;line-height:1.85;color:var(--t);white-space:pre-wrap;font-family:Georgia,"Times New Roman",serif;min-height:200px}
+
+    /* UPSELL */
+    .upsell{background:var(--s);border:2px solid var(--ab);border-radius:14px;padding:20px 24px;margin-bottom:16px;display:none}
+    .upsell-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+    .upsell h3{font-size:15px;font-weight:700;letter-spacing:-.2px}
+    .upsell-price{font-size:13px;font-weight:600;color:var(--a);background:var(--al);padding:3px 10px;border-radius:10px}
+    .upsell p{font-size:13px;color:var(--m);margin-bottom:14px;line-height:1.5}
+    .upsell-btn{width:100%;padding:11px;background:var(--a);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer}
+    .upsell-btn:hover{background:var(--ah)}
+    .upsell-skip{display:block;text-align:center;font-size:12px;color:var(--m);margin-top:8px;cursor:pointer;border:none;background:none}
+
+    /* REFERRAL SHARE */
+    .share-box{background:var(--al);border:1px solid var(--ab);border-radius:14px;padding:20px 24px;margin-bottom:16px;display:none}
+    .share-box h3{font-size:15px;font-weight:700;margin-bottom:6px}
+    .share-box p{font-size:13px;color:var(--m);margin-bottom:14px}
+    .share-url-row{display:flex;gap:8px}
+    .share-url{flex:1;padding:9px 12px;background:#fff;border:1px solid var(--ab);border-radius:8px;font-size:12px;color:var(--t);font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .share-copy{padding:9px 14px;background:var(--a);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+    .share-copy.copied{background:#16a34a}
+    .share-note{font-size:11px;color:var(--a);margin-top:8px}
+
+    .actions{display:flex;gap:12px;flex-wrap:wrap}
+    .btn-secondary{flex:1;padding:11px;background:var(--s);color:var(--t);border:1px solid var(--b);border-radius:9px;font-size:14px;font-weight:500;cursor:pointer;text-align:center;text-decoration:none}
+    .btn-secondary:hover{background:var(--bg)}
+    .btn-primary{flex:1;padding:11px;background:var(--a);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:500;cursor:pointer}
+    .btn-primary:hover{background:var(--ah)}
+    @media(max-width:520px){.letter-body{padding:18px 16px}}
+  </style>
+</head>
+<body>
+<nav><a class="logo" href="/">Snabb<span>rev</span></a></nav>
+<main>
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p>Skriver ditt personliga brev…</p>
+    <div class="loading-steps">
+      <div class="lstep active" id="ls1">Analyserar jobbannonsen</div>
+      <div class="lstep" id="ls2">Matchar profilen mot kraven</div>
+      <div class="lstep" id="ls3">Extraherar ATS-nyckelord</div>
+      <div class="lstep" id="ls4">Skriver brevet</div>
+      <div class="lstep" id="ls5">Levererar till din email</div>
+    </div>
+  </div>
+
+  <div class="error-box" id="error-box"><p id="error-text">Något gick fel. Kontakta hej@snabbrev.se</p></div>
+
+  <div id="result" style="display:none">
+    <div class="success-header">
+      <div class="check-circle"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div>
+        <h1>Ditt personliga brev är klart!</h1>
+        <p id="letter-subtitle">Kopiera och skicka.</p>
+      </div>
+    </div>
+
+    <div class="ats-strip" id="ats-strip">
+      <div class="ats-label">ATS-nyckelord inkluderade i ditt brev</div>
+      <div class="ats-tags" id="ats-tags"></div>
+    </div>
+
+    <div class="email-confirm" id="email-confirm">📩 Brevet har skickats till din email</div>
+
+    <div class="letter-card">
+      <div class="letter-toolbar">
+        <div class="letter-meta">Till: <strong id="meta-company">–</strong> · <strong id="meta-job">–</strong></div>
+        <div class="toolbar-btns">
+          <button class="dl-btn" onclick="downloadLetter()">Ladda ner</button>
+          <button class="copy-btn" id="copy-btn" onclick="copyLetter()">Kopiera</button>
+        </div>
+      </div>
+      <div class="letter-body" id="letter-body"></div>
+    </div>
+
+    <!-- UPSELL: CV-granskning -->
+    <div class="upsell" id="upsell">
+      <div class="upsell-header">
+        <h3>Vill du ha ditt CV genomgånget också?</h3>
+        <span class="upsell-price">29 kr</span>
+      </div>
+      <p>AI:n analyserar ditt CV mot jobbannonsen du just sökte och ger specifik feedback: vad som saknas, vilka nyckelord som bör läggas till och hur du sticker ut.</p>
+      <button class="upsell-btn" onclick="buyUpsell()">Ja, granska mitt CV — 29 kr</button>
+      <button class="upsell-skip" onclick="document.getElementById('upsell').style.display='none'">Nej tack</button>
+    </div>
+
+    <!-- REFERRAL SHARE -->
+    <div class="share-box" id="share-box">
+      <h3>🎁 Dela Snabbrev — tjäna pengar</h3>
+      <p>Din unika länk ger vänner 10 kr rabatt. Varje gång någon köper via din länk skickar vi 10 kr till dig via Swish.</p>
+      <div class="share-url-row">
+        <div class="share-url" id="share-url">snabbrev.se/?ref=SHARE10</div>
+        <button class="share-copy" id="share-copy-btn" onclick="copyShareUrl()">Kopiera länk</button>
+      </div>
+      <p class="share-note">Skicka till hej@snabbrev.se för att ta emot din Swish-utbetalning</p>
+    </div>
+
+    <div class="actions">
+      <a class="btn-secondary" href="/">Skriv ett till brev</a>
+      <button class="btn-primary" onclick="copyLetter()">Kopiera text</button>
+    </div>
+  </div>
+</main>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const sessionId = params.get('session_id');
+let currentJob = '', currentCompany = '';
+
+// Animate loading steps
+const steps = ['ls1','ls2','ls3','ls4','ls5'];
+let si = 0;
+const iv = setInterval(() => {
+  if (si > 0) { document.getElementById(steps[si-1]).classList.remove('active'); document.getElementById(steps[si-1]).classList.add('done'); }
+  if (si < steps.length) { document.getElementById(steps[si]).classList.add('active'); si++; }
+  else clearInterval(iv);
+}, 1600);
+
+if (!sessionId) showError('Ingen session hittades. Gå tillbaka och försök igen.');
+else fetchLetter(sessionId);
+
+async function fetchLetter(id) {
+  try {
+    const res = await fetch(`/api/generate?session_id=${id}`);
+    const data = await res.json();
+    clearInterval(iv);
+    if (!res.ok) throw new Error(data.error||'Serverfel');
+    showLetter(data);
+  } catch(err) { clearInterval(iv); showError(err.message); }
+}
+
+function showLetter({ letter, jobTitle, company, keywords, emailSent }) {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('result').style.display = 'block';
+  document.getElementById('letter-body').textContent = letter;
+  document.getElementById('meta-company').textContent = company||'–';
+  document.getElementById('meta-job').textContent = jobTitle||'–';
+  document.getElementById('letter-subtitle').textContent = `${jobTitle} på ${company} · klart att skicka`;
+  currentJob = jobTitle; currentCompany = company;
+
+  if (keywords?.length) {
+    document.getElementById('ats-strip').style.display = 'block';
+    document.getElementById('ats-tags').innerHTML = keywords.slice(0,12).map(k=>`<span class="ats-tag">${k}</span>`).join('');
+  }
+  if (emailSent) document.getElementById('email-confirm').style.display = 'block';
+
+  // Show upsell after 2s
+  setTimeout(() => { document.getElementById('upsell').style.display = 'block'; }, 2000);
+
+  // Show referral share
+  setTimeout(() => { document.getElementById('share-box').style.display = 'block'; }, 3000);
+
+  // Track conversion event
+  if (window.va) window.va('event', { name: 'letter_generated' });
+}
+
+function showError(msg) {
+  document.getElementById('loading').style.display = 'none';
+  const box = document.getElementById('error-box');
+  document.getElementById('error-text').textContent = msg;
+  box.style.display = 'block';
+}
+
+function copyLetter() {
+  navigator.clipboard.writeText(document.getElementById('letter-body').textContent).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = 'Kopierat!'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Kopiera'; btn.classList.remove('copied'); }, 2500);
+    if (window.va) window.va('event', { name: 'letter_copied' });
+  });
+}
+
+function downloadLetter() {
+  const text = document.getElementById('letter-body').textContent;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text],{type:'text/plain;charset=utf-8'}));
+  a.download = `personligt-brev-${currentJob.replace(/\s+/g,'-').toLowerCase()||'snabbrev'}.txt`;
+  a.click();
+}
+
+async function buyUpsell() {
+  if (window.va) window.va('event', { name: 'upsell_clicked' });
+  try {
+    const res = await fetch('/api/checkout', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        jobTitle: 'CV-granskning',
+        company: currentCompany,
+        jobDescription: `CV-granskning för ${currentJob} på ${currentCompany}`,
+        background: '',
+        isUpsell: true,
+      })
+    });
+    const data = await res.json();
+    if (data.url) window.location.href = data.url;
+  } catch(e) { alert('Något gick fel, försök igen.'); }
+}
+
+function copyShareUrl() {
+  const url = 'https://snabbrev.se/?ref=SHARE10';
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.getElementById('share-copy-btn');
+    btn.textContent = 'Kopierat!'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Kopiera länk'; btn.classList.remove('copied'); }, 2500);
+    if (window.va) window.va('event', { name: 'referral_shared' });
+  });
+}
+</script>
+</body>
+</html>

@@ -421,15 +421,24 @@
   }
 
   function downloadPdf() {
-    const el = document.getElementById('proposalOutput');
-    const opt = {
+    const source = document.getElementById('proposalOutput');
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;background:white;padding:32px;font-family:Inter,sans-serif;font-size:15px;line-height:1.8;color:#334155;';
+    wrapper.innerHTML = source.innerHTML;
+    wrapper.querySelectorAll('h2').forEach(h => {
+      h.style.cssText = 'font-size:16px;font-weight:700;color:#0F172A;margin:20px 0 8px;padding-bottom:6px;border-bottom:1px solid #E2E8F0;';
+    });
+    wrapper.querySelectorAll('h3').forEach(h => {
+      h.style.cssText = 'font-size:15px;font-weight:700;color:#0F172A;margin:14px 0 6px;';
+    });
+    document.body.appendChild(wrapper);
+    html2pdf().set({
       margin: [15, 15, 15, 15],
       filename: 'proposal-scopeai.pdf',
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2 },
+      html2canvas: { scale: 2, backgroundColor: '#ffffff' },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    };
-    html2pdf().set(opt).from(el).save();
+    }).from(wrapper).save().then(() => document.body.removeChild(wrapper));
     if (window.va) window.va('event', { name: 'pdf_downloaded' });
   }
 </script>

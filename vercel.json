@@ -1,10 +1,21 @@
 {
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "snabbrev.se" }],
+      "destination": "https://www.snabbrev.se/:path*",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     { "source": "/success", "destination": "/success.html" },
     { "source": "/dashboard", "destination": "/dashboard.html" },
     { "source": "/integritetspolicy", "destination": "/integritetspolicy.html" },
     { "source": "/villkor", "destination": "/villkor.html" },
     { "source": "/blogg/hur-skriver-man-personligt-brev", "destination": "/blogg/hur-skriver-man-personligt-brev.html" },
-    { "source": "/blogg/ats-vad-ar-det", "destination": "/blogg/ats-vad-ar-det.html" }
+    { "source": "/blogg/ats-vad-ar-det", "destination": "/blogg/ats-vad-ar-det.html" },
+    { "source": "/blogg/personligt-brev-exempel", "destination": "/blogg/personligt-brev-exempel.html" },
+    { "source": "/blogg/personligt-brev-mall", "destination": "/blogg/personligt-brev-mall.html" },
+    { "source": "/blogg/followebrev-jobbansökan", "destination": "/blogg/foljebrev-jobbansökan.html" }
   ]
 }

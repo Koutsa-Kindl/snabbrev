@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://snabbrev.se/sitemap.xml
+Sitemap: https://www.snabbrev.se/sitemap.xml

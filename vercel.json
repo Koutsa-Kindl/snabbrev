@@ -16,6 +16,7 @@
     { "source": "/blogg/ats-vad-ar-det", "destination": "/blogg/ats-vad-ar-det.html" },
     { "source": "/blogg/personligt-brev-exempel", "destination": "/blogg/personligt-brev-exempel.html" },
     { "source": "/blogg/personligt-brev-mall", "destination": "/blogg/personligt-brev-mall.html" },
-    { "source": "/blogg/followebrev-jobbansökan", "destination": "/blogg/foljebrev-jobbansökan.html" }
+    { "source": "/blogg/followebrev-jobbansökan", "destination": "/blogg/foljebrev-jobbansökan.html" },
+    { "source": "/tack-feedback", "destination": "/tack-feedback.html" }
   ]
 }

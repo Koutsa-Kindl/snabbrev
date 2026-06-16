@@ -182,6 +182,52 @@ VIKTIGT: Brevet ska kännas genuint och mänskligt skrivet, inte som en mall. Va
           text: letter,
         }),
       }).catch(err => console.error("Email send failed:", err));
+
+      // Schedule satisfaction email 2 hours later
+      const scheduledAt = new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString();
+      const sessionParam = encodeURIComponent(session_id);
+      const baseUrl = "https://www.snabbrev.se";
+      const satisfactionHtml = `<!DOCTYPE html><html lang="sv"><head><meta charset="UTF-8"><style>
+        body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f9f8f6;margin:0;padding:40px 20px}
+        .wrap{max-width:520px;margin:0 auto;background:#fff;border-radius:12px;border:1px solid #e5e3de;overflow:hidden}
+        .header{background:#2d6a4f;padding:24px 32px;color:#fff}
+        .header h1{font-size:17px;margin:0;font-weight:600}
+        .body{padding:32px;font-size:15px;line-height:1.8;color:#1a1a18;text-align:center}
+        .stars{display:flex;justify-content:center;gap:12px;margin:28px 0}
+        .star{display:inline-block;text-decoration:none;font-size:32px;line-height:1;transition:transform .1s}
+        .label{font-size:12px;color:#6b6963;margin-top:-12px;margin-bottom:24px}
+        .share{font-size:13px;color:#6b6963;border-top:1px solid #e5e3de;padding-top:20px;margin-top:8px}
+        .share a{color:#2d6a4f;font-weight:600;text-decoration:none}
+        .footer{padding:16px 32px;font-size:11px;color:#6b6963;text-align:center;border-top:1px solid #e5e3de}
+      </style></head><body>
+      <div class="wrap">
+        <div class="header"><h1>Hur gick det med ansökan?</h1></div>
+        <div class="body">
+          <p>Hej! Vi hoppas att ditt personliga brev till <strong>${company}</strong> landade bra.<br>Hur nöjd är du med resultatet?</p>
+          <div class="stars">
+            <a class="star" href="${baseUrl}/api/feedback?rating=1&session=${sessionParam}" title="Dåligt">⭐</a>
+            <a class="star" href="${baseUrl}/api/feedback?rating=2&session=${sessionParam}" title="Under förväntan">⭐⭐</a>
+            <a class="star" href="${baseUrl}/api/feedback?rating=3&session=${sessionParam}" title="OK">⭐⭐⭐</a>
+            <a class="star" href="${baseUrl}/api/feedback?rating=4&session=${sessionParam}" title="Bra">⭐⭐⭐⭐</a>
+            <a class="star" href="${baseUrl}/api/feedback?rating=5&session=${sessionParam}" title="Perfekt">⭐⭐⭐⭐⭐</a>
+          </div>
+          <p class="label">Klicka på antalet stjärnor som stämmer</p>
+          <div class="share">Nöjd? Tipsa en vän — <a href="https://www.snabbrev.se">snabbrev.se</a> · 49 kr, klart på 30 sekunder.</div>
+        </div>
+        <div class="footer">Snabbrev.se · Du får det här mailet eftersom du nyligen genererade ett brev hos oss.</div>
+      </div></body></html>`;
+
+      fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${process.env.RESEND_API_KEY}` },
+        body: JSON.stringify({
+          from: "Snabbrev <hej@snabbrev.se>",
+          to: [email],
+          subject: `Hur gick det med ansökan till ${company}? ⭐`,
+          html: satisfactionHtml,
+          scheduled_at: scheduledAt,
+        }),
+      }).catch(err => console.error("Satisfaction email schedule failed:", err));
     }
 
     res.json({

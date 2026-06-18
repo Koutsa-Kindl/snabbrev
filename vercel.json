@@ -17,6 +17,16 @@
     { "source": "/blogg/personligt-brev-exempel", "destination": "/blogg/personligt-brev-exempel.html" },
     { "source": "/blogg/personligt-brev-mall", "destination": "/blogg/personligt-brev-mall.html" },
     { "source": "/blogg/followebrev-jobbansökan", "destination": "/blogg/foljebrev-jobbansökan.html" },
-    { "source": "/tack-feedback", "destination": "/tack-feedback.html" }
+    { "source": "/tack-feedback", "destination": "/tack-feedback.html" },
+    { "source": "/blogg/personligt-brev-ingenjor", "destination": "/blogg/personligt-brev-ingenjor.html" },
+    { "source": "/blogg/personligt-brev-sjukskoterska", "destination": "/blogg/personligt-brev-sjukskoterska.html" },
+    { "source": "/blogg/personligt-brev-larare", "destination": "/blogg/personligt-brev-larare.html" },
+    { "source": "/blogg/personligt-brev-ekonom", "destination": "/blogg/personligt-brev-ekonom.html" },
+    { "source": "/blogg/personligt-brev-it-utvecklare", "destination": "/blogg/personligt-brev-it-utvecklare.html" },
+    { "source": "/blogg/personligt-brev-projektledare", "destination": "/blogg/personligt-brev-projektledare.html" },
+    { "source": "/blogg/personligt-brev-saljare", "destination": "/blogg/personligt-brev-saljare.html" },
+    { "source": "/blogg/personligt-brev-underskoterskam", "destination": "/blogg/personligt-brev-underskoterskam.html" },
+    { "source": "/blogg/personligt-brev-marknadsfforare", "destination": "/blogg/personligt-brev-marknadsfforare.html" },
+    { "source": "/blogg/personligt-brev-redovisningsekonom", "destination": "/blogg/personligt-brev-redovisningsekonom.html" }
   ]
 }
